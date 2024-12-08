@@ -39,7 +39,7 @@ TFT_eSprite img = TFT_eSprite(&tft); // Create Sprite object "needle" with point
 #define IWIDTH 240
 #define IHEIGHT 240
 
-int i = 0;
+int i = 30;
 
 // #########################################################################
 // Draw a number in a rounded rectangle with some transparent pixels
@@ -100,6 +100,106 @@ void showNeedle(int speed)
   needle.pushRotated(&background, angle, 0x041f);
 }
 
+/*! ******************************************************************
+  @brief    Show coolant temperature on the screen
+  @details  This function will show the coolant temperature on the
+          screen. The temperature will be shown as a arc with
+          five segments. The arc will be filled with a colour to
+          represent the temperature.
+
+  @param    tCoolant <double> The temperature in degrees
+  @return   void
+
+*/
+void showCoolantTemperature(double tCoolant)
+{
+
+
+  // Define the colours for the arc segments
+  #define ARC_COLOR_OK 0x0582
+  #define ARC_COLOR_PASSIV 0x7bef
+  #define ARC_COLOR_CRITICAL 0xe800
+
+  #define MIN_TEMPERATURE 30
+  #define MAX_TEMPERATURE 110
+  #define CRITICAL_TEMPERATURE 98
+
+  // Define the arc parameters  
+  size_t numSegments = 7;
+  uint16_t outerRadius = 112;
+  uint8_t arcWidth = 10;
+  uint16_t angleSegment = 10;
+  uint16_t angleSegmentSpace = 2;
+  uint16_t angleStart = 330;
+  uint16_t arcColor = 0x0000;
+
+  uint16_t segmentStart[numSegments] = {};
+  uint16_t segmentEnd[numSegments] = {};
+  uint16_t segmentColour[numSegments] = {};
+
+
+  // Map the temperature to the segment index
+  uint8_t segmentIndex = (uint8_t) map(tCoolant, MIN_TEMPERATURE, MAX_TEMPERATURE, 0, 6);
+  segmentIndex = constrain(segmentIndex, 0, numSegments - 1);
+  if(tCoolant < MIN_TEMPERATURE){
+    segmentIndex = 0;
+  }
+
+  // ******************************************************************
+  // Calculate the arc segments
+  // ******************************************************************
+  // Draw the arc segments
+  for (uint8_t i = 0; i < numSegments; i++)
+  {
+    // Set the colour of the arc segment
+    if (i < segmentIndex)
+    {
+      segmentColour[i] = ARC_COLOR_OK;
+      if (tCoolant > CRITICAL_TEMPERATURE){
+        segmentColour[i] = ARC_COLOR_CRITICAL;
+      }
+    }
+    else 
+    {
+      segmentColour[i] = ARC_COLOR_PASSIV;
+    }
+
+    // Set the angle segment and space for the arc segment
+    angleSegment = ((i == 0) || (i == numSegments - 1)) ? 1 : 10;
+    angleSegmentSpace = ((i == 0) || (i == numSegments - 1)) ? 0 : 2;
+
+    // Set the start and end angles for the arc segment
+    segmentStart[i] = angleStart - angleSegment;
+    segmentEnd[i] = angleStart;
+    
+    // Set the start angle for the next segment
+    angleStart = angleStart - angleSegment;
+    if (i < numSegments - 2)
+    {
+      angleStart = angleStart - angleSegmentSpace;
+    }
+    
+  }
+
+  // ******************************************************************
+  // Draw the arc segments
+  // ******************************************************************
+  // Draw the first arc segments
+  background.drawSmoothArc(120, 120, outerRadius, outerRadius - arcWidth, segmentStart[0], segmentEnd[0], segmentColour[0], segmentColour[0], true);
+  // Draw the arc segments
+  for (uint8_t i = 1; i < numSegments-1; i++)
+  {
+    // Draw the last arc segment
+    if (i == numSegments - 3)
+    {
+      background.drawSmoothArc(120, 120, outerRadius, outerRadius - arcWidth, segmentStart[numSegments-1], segmentEnd[numSegments-1], segmentColour[numSegments-1], segmentColour[numSegments-1], true);
+    }
+    // Draw the other arc segments
+    background.drawSmoothArc(120, 120, outerRadius, outerRadius - arcWidth, segmentStart[i], segmentEnd[i], segmentColour[i], segmentColour[i], false);
+  }
+
+}
+
 void setup(void)
 {
   Serial.begin(250000);
@@ -135,18 +235,20 @@ void loop()
   // needle.fillSprite(0x041f);
   uint32_t dt = millis();
   background.pushImage(0, 0, 240, 240, _scale);
-  showNeedle(i);
-  background.pushSprite(0, 0);
+  // showNeedle(i);
 
+  showCoolantTemperature(i);
+
+  background.pushSprite(0, 0);
   // Show time in milliseconds to draw and then push 1 sprite to TFT screen
   // numberBox( 100, 100, (millis()-dt));
   numberBox(100, 100, i);
   delay(1000);
 
-  i = i + 250;
-  if (i > 4000)
+  i = i + 2;
+  if (i > 130)
   {
-    i = 0;
+    i = 30;
   }
   // delay(10);
 }
