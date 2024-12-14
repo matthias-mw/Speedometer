@@ -28,6 +28,7 @@
 #include <scale.h>
 
 #include <airstrikeb3d26pt7b.h>
+#include <airstrikeb3d18pt7b.h>
 #include <White_On_Black10pt7b.h>
 #include <G7_Segment_7a32pt7b.h>
 
@@ -46,9 +47,14 @@ TFT_eSprite textSprite = TFT_eSprite(&tft); // Create Sprite object "needle" wit
 
 int i = 10;
 
-// #########################################################################
-// Draw a number in a rounded rectangle with some transparent pixels
-// #########################################################################
+
+/*! ******************************************************************
+  @brief    Show the engine speed on the screen
+  @details  This function will show the engine speed on the screen.
+          The engine speed will be shown as a number in a box.
+  @param    speed <double> The engine speed in RPM
+  @return   void
+*/
 void showEngineSpeed(double speed)
 {
 
@@ -56,8 +62,7 @@ void showEngineSpeed(double speed)
 #define IWIDTHx 136
 #define IHEIGHTx 54
 
-
-  String speedStr= String(speed, 0);
+  String speedStr = String(speed, 0);
 
   // Create a 8-bit sprite 80 pixels wide, 35 high (2800 bytes of RAM needed)
   textSprite.setColorDepth(16);
@@ -67,21 +72,55 @@ void showEngineSpeed(double speed)
   textSprite.fillSprite(TFT_BLACK);
 
   // Draw a background for the numbers
-  //textSprite.fillRect(0, 0, IWIDTHx, IHEIGHTx, TFT_RED);
-  
+  // textSprite.fillRect(0, 0, IWIDTHx, IHEIGHTx, TFT_RED);
+
   // Set the font parameters
-  textSprite.setTextSize(1); // Font size scaling is x1
+  textSprite.setTextSize(1);          // Font size scaling is x1
   textSprite.setTextColor(TFT_WHITE); // White text, no background colour
   textSprite.setTextDatum(MR_DATUM);
   textSprite.setFreeFont(&G7_Segment_7a32pt7b);
 
   textSprite.drawString(speedStr, IWIDTHx, IHEIGHTx / 2);
-  
-  textSprite.pushToSprite(&background, 57, 125, TFT_BLACK);
+
+  textSprite.pushToSprite(&background, 52, 125, TFT_BLACK);
 
   // Delete sprite to free up the RAM
   textSprite.deleteSprite();
 }
+
+void showText(double speed)
+{
+
+// Size of sprite
+#define IWIDTHy 136
+#define IHEIGHTy 54
+
+  String speedStr = String(speed, 0);
+
+  // Create a 8-bit sprite 80 pixels wide, 35 high (2800 bytes of RAM needed)
+  textSprite.setColorDepth(16);
+  textSprite.createSprite(IWIDTHx, IHEIGHTx);
+
+  // Fill it with black (this will be the transparent colour this time)
+  textSprite.fillSprite(TFT_BLACK);
+
+  // Draw a background for the numbers
+  // textSprite.fillRect(0, 0, IWIDTHx, IHEIGHTx, TFT_RED);
+
+  // Set the font parameters
+  textSprite.setTextSize(1);          // Font size scaling is x1
+  textSprite.setTextColor(TFT_RED); // White text, no background colour
+  textSprite.setTextDatum(MR_DATUM);
+  textSprite.setFreeFont(&airstrikeb3d18pt7b);
+
+  textSprite.drawString( speedStr + " °C", IWIDTHy, IHEIGHTy / 2);
+
+  textSprite.pushToSprite(&background, 57, 50, TFT_BLACK);
+
+  // Delete sprite to free up the RAM
+  textSprite.deleteSprite();
+}
+
 
 /*! ******************************************************************
   @brief    Show the engine Hours on the screen
@@ -92,7 +131,6 @@ void showEngineSpeed(double speed)
 */
 void showEngineHours(double engineHours)
 {
-
 
   String engineHoursStr = String(engineHours, 1);
 
@@ -107,24 +145,21 @@ void showEngineHours(double engineHours)
   textSprite.fillRect(0, 0, 91, 28, TFT_BLACK);
 
   // Set the font parameters
-  textSprite.setTextSize(1); // Font size scaling is x1
+  textSprite.setTextSize(1);          // Font size scaling is x1
   textSprite.setTextColor(TFT_WHITE); // White text, no background colour
   textSprite.setTextDatum(MR_DATUM);
   textSprite.setFreeFont(&White_On_Black10pt7b);
 
   // Draw Text
-  textSprite.drawString(engineHoursStr  + "h", 90, 11);
-
+  textSprite.drawString(engineHoursStr + "h", 90, 11);
 
   // Push sprite to TFT screen CGRAM at coordinate x,y (top left corner)
   // All black pixels will not be drawn hence will show as "transparent"
-  textSprite.pushToSprite(&background,49, 185, TFT_BLACK);
+  textSprite.pushToSprite(&background, 49, 185, TFT_BLACK);
 
   // Delete sprite to free up the RAM
   textSprite.deleteSprite();
 }
-
-
 
 /*! ******************************************************************
   @brief    Show a needle on the screen at a given engine speed
@@ -171,8 +206,8 @@ void showCoolantTemperature(double tCoolant)
 
   // Define the arc parameters
   size_t numSegments = 7;
-  uint16_t outerRadius = 112;
-  uint8_t arcWidth = 10;
+  uint16_t outerRadius = 108;
+  uint8_t arcWidth = 8;
   uint16_t angleSegment = 10;
   uint16_t angleSegmentSpace = 2;
   uint16_t angleStart = 330;
@@ -247,7 +282,7 @@ void showCoolantTemperature(double tCoolant)
   // Draw the Value
   // ******************************************************************
 
-  String tCoolantStr = String(tCoolant,0);
+  String tCoolantStr = String(tCoolant, 0);
 
   // Create a 8-bit sprite 80 pixels wide, 35 high (2800 bytes of RAM needed)
   textSprite.setColorDepth(16);
@@ -257,7 +292,7 @@ void showCoolantTemperature(double tCoolant)
   textSprite.fillSprite(TFT_BLACK);
 
   // Draw a background for the numbers
-  //textSprite.fillRect(0, 0, 61, 28, TFT_GREEN);
+  // textSprite.fillRect(0, 0, 61, 28, TFT_GREEN);
 
   // Set the font parameters
   textSprite.setTextSize(1); // Font size scaling is x1
@@ -273,17 +308,14 @@ void showCoolantTemperature(double tCoolant)
   textSprite.setFreeFont(&White_On_Black10pt7b);
 
   // Draw Text
-  textSprite.drawString(tCoolantStr+" C", 60, 11);
-
+  textSprite.drawString(tCoolantStr + " C", 60, 11);
 
   // Push sprite to TFT screen CGRAM at coordinate x,y (top left corner)
   // All black pixels will not be drawn hence will show as "transparent"
-  textSprite.pushToSprite(&background,170, 85, TFT_BLACK);
+  textSprite.pushToSprite(&background, 170, 85, TFT_BLACK);
 
   // Delete sprite to free up the RAM
   textSprite.deleteSprite();
-
-
 }
 
 void setup(void)
@@ -331,13 +363,14 @@ void loop()
   }
 
   showCoolantTemperature(i);
-  showEngineSpeed( i * 29);
+  showEngineSpeed(i * 29);
   showNeedle(i * 30);
-  showEngineHours(i*23.1);
+  showEngineHours(i * 23.1);
+  // showText(i * 21);
 
   background.pushSprite(0, 0);
 
-  delay(100);
+  delay(500);
 
   i = i + 2;
   if (i > 130)
