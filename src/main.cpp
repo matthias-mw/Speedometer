@@ -27,13 +27,18 @@
 #include <startscreen.h>
 #include <scale.h>
 
+#include <airstrikeb3d26pt7b.h>
+#include <White_On_Black10pt7b.h>
+#include <G7_Segment_7a32pt7b.h>
+
+
 TFT_eSPI tft = TFT_eSPI(); // Create object "tft"
 
 TFT_eSprite needle = TFT_eSprite(&tft); // Create Sprite object "needle" with pointer to "tft" object
                                         // the pointer is used by pushSprite() to push it onto the TFT
 
 TFT_eSprite background = TFT_eSprite(&tft);
-TFT_eSprite img = TFT_eSprite(&tft); // Create Sprite object "needle" with pointer to "tft" object
+TFT_eSprite textSprite = TFT_eSprite(&tft); // Create Sprite object "needle" with pointer to "tft" object
 
 // Size of sprite
 #define IWIDTH 240
@@ -44,43 +49,82 @@ int i = 10;
 // #########################################################################
 // Draw a number in a rounded rectangle with some transparent pixels
 // #########################################################################
-void numberBox(int x, int y, float num)
+void showEngineSpeed(double speed)
 {
 
 // Size of sprite
-#define IWIDTHx 130
-#define IHEIGHTx 60
+#define IWIDTHx 136
+#define IHEIGHTx 54
+
+
+  String speedStr= String(speed, 0);
 
   // Create a 8-bit sprite 80 pixels wide, 35 high (2800 bytes of RAM needed)
-  img.setColorDepth(16);
-  img.createSprite(IWIDTHx, IHEIGHTx);
+  textSprite.setColorDepth(16);
+  textSprite.createSprite(IWIDTHx, IHEIGHTx);
 
   // Fill it with black (this will be the transparent colour this time)
-  img.fillSprite(TFT_BLACK);
+  textSprite.fillSprite(TFT_BLACK);
 
   // Draw a background for the numbers
-  // img.fillRoundRect(0, 0, 180, 80, 1, TFT_RED);
-  // img.drawRoundRect(0, 0, 80, 35, 15, TFT_WHITE);
+  //textSprite.fillRect(0, 0, IWIDTHx, IHEIGHTx, TFT_RED);
+  
+  // Set the font parameters
+  textSprite.setTextSize(1); // Font size scaling is x1
+  textSprite.setTextColor(TFT_WHITE); // White text, no background colour
+  textSprite.setTextDatum(MR_DATUM);
+  textSprite.setFreeFont(&G7_Segment_7a32pt7b);
+
+  textSprite.drawString(speedStr, IWIDTHx, IHEIGHTx / 2);
+  
+  textSprite.pushToSprite(&background, 57, 125, TFT_BLACK);
+
+  // Delete sprite to free up the RAM
+  textSprite.deleteSprite();
+}
+
+/*! ******************************************************************
+  @brief    Show the engine Hours on the screen
+  @details  This function will show the engine hours on the screen.
+          The engine hours will be shown as a number in a box.
+  @param    engineHours <double> The engine hours
+  @return   void
+*/
+void showEngineHours(double engineHours)
+{
+
+
+  String engineHoursStr = String(engineHours, 1);
+
+  // Create a 8-bit sprite 80 pixels wide, 35 high (2800 bytes of RAM needed)
+  textSprite.setColorDepth(16);
+  textSprite.createSprite(91, 28);
+
+  // Fill it with black (this will be the transparent colour this time)
+  textSprite.fillSprite(TFT_BLACK);
+
+  // Draw a background for the numbers
+  textSprite.fillRect(0, 0, 91, 28, TFT_BLACK);
 
   // Set the font parameters
-  img.setTextSize(1); // Font size scaling is x1
+  textSprite.setTextSize(1); // Font size scaling is x1
+  textSprite.setTextColor(TFT_WHITE); // White text, no background colour
+  textSprite.setTextDatum(MR_DATUM);
+  textSprite.setFreeFont(&White_On_Black10pt7b);
 
-  img.setTextColor(TFT_WHITE); // White text, no background colour
+  // Draw Text
+  textSprite.drawString(engineHoursStr  + "h", 90, 11);
 
-  // Set text coordinate datum to middle right
-  img.setTextDatum(MR_DATUM);
-
-  // Draw the number to 3 decimal places at 70,20 in font 4
-  img.drawFloat(num, 0, IWIDTHx, IHEIGHTx / 2, 7);
 
   // Push sprite to TFT screen CGRAM at coordinate x,y (top left corner)
   // All black pixels will not be drawn hence will show as "transparent"
-  img.pushSprite(x, y, TFT_BLACK);
-  img.pushToSprite(&background, x, y, TFT_BLACK);
+  textSprite.pushToSprite(&background,49, 185, TFT_BLACK);
 
   // Delete sprite to free up the RAM
-  img.deleteSprite();
+  textSprite.deleteSprite();
 }
+
+
 
 /*! ******************************************************************
   @brief    Show a needle on the screen at a given engine speed
@@ -198,6 +242,48 @@ void showCoolantTemperature(double tCoolant)
     // Draw the other arc segments
     background.drawSmoothArc(120, 120, outerRadius, outerRadius - arcWidth, segmentStart[i], segmentEnd[i], segmentColour[i], segmentColour[i], false);
   }
+
+  // ******************************************************************
+  // Draw the Value
+  // ******************************************************************
+
+  String tCoolantStr = String(tCoolant,0);
+
+  // Create a 8-bit sprite 80 pixels wide, 35 high (2800 bytes of RAM needed)
+  textSprite.setColorDepth(16);
+  textSprite.createSprite(61, 28);
+
+  // Fill it with black (this will be the transparent colour this time)
+  textSprite.fillSprite(TFT_BLACK);
+
+  // Draw a background for the numbers
+  //textSprite.fillRect(0, 0, 61, 28, TFT_GREEN);
+
+  // Set the font parameters
+  textSprite.setTextSize(1); // Font size scaling is x1
+  if (tCoolant > CRITICAL_TEMPERATURE)
+  {
+    textSprite.setTextColor(TFT_GREEN); // White text, no background colour
+  }
+  else
+  {
+    textSprite.setTextColor(TFT_WHITE); // White text, no background colour
+  }
+  textSprite.setTextDatum(MR_DATUM);
+  textSprite.setFreeFont(&White_On_Black10pt7b);
+
+  // Draw Text
+  textSprite.drawString(tCoolantStr+" C", 60, 11);
+
+
+  // Push sprite to TFT screen CGRAM at coordinate x,y (top left corner)
+  // All black pixels will not be drawn hence will show as "transparent"
+  textSprite.pushToSprite(&background,170, 85, TFT_BLACK);
+
+  // Delete sprite to free up the RAM
+  textSprite.deleteSprite();
+
+
 }
 
 void setup(void)
@@ -245,8 +331,9 @@ void loop()
   }
 
   showCoolantTemperature(i);
-  numberBox(65, 130, i * 30);
+  showEngineSpeed( i * 29);
   showNeedle(i * 30);
+  showEngineHours(i*23.1);
 
   background.pushSprite(0, 0);
 
