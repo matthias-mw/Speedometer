@@ -217,7 +217,7 @@ void setup(void)
   background.setSwapBytes(true);
   background.setColorDepth(16);
   background.createSprite(IWIDTH, IHEIGHT);
-  background.pushImage(0, 0, 240, 240, _scale);
+  background.pushImage(0, 0, 240, 240, _scale_1);
 
   needle.createSprite(20, 100);
   needle.setColorDepth(16);
@@ -234,8 +234,17 @@ void loop()
   // needle.fillSprite(TFT_RED);
   // needle.fillSprite(0x041f);
   uint32_t dt = millis();
-  background.pushImage(0, 0, 240, 240, _scale);
-  // showNeedle(i);
+
+  if (i > 100)
+  {
+    background.pushImage(0, 0, 240, 240, _scale_2);
+  }
+  else
+  {
+    background.pushImage(0, 0, 240, 240, _scale_1);
+  }
+  
+  showNeedle(i*30);
 
   showCoolantTemperature(i);
 
@@ -243,7 +252,7 @@ void loop()
   // Show time in milliseconds to draw and then push 1 sprite to TFT screen
   // numberBox( 100, 100, (millis()-dt));
   numberBox(100, 100, i);
-  delay(1000);
+  delay(100);
 
   i = i + 2;
   if (i > 130)
