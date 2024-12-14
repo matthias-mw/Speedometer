@@ -39,7 +39,7 @@ TFT_eSprite img = TFT_eSprite(&tft); // Create Sprite object "needle" with point
 #define IWIDTH 240
 #define IHEIGHT 240
 
-int i = 30;
+int i = 10;
 
 // #########################################################################
 // Draw a number in a rounded rectangle with some transparent pixels
@@ -48,33 +48,35 @@ void numberBox(int x, int y, float num)
 {
 
 // Size of sprite
-#define IWIDTHx 80
-#define IHEIGHTx 35
+#define IWIDTHx 130
+#define IHEIGHTx 60
 
   // Create a 8-bit sprite 80 pixels wide, 35 high (2800 bytes of RAM needed)
-  img.setColorDepth(8);
+  img.setColorDepth(16);
   img.createSprite(IWIDTHx, IHEIGHTx);
 
   // Fill it with black (this will be the transparent colour this time)
   img.fillSprite(TFT_BLACK);
 
   // Draw a background for the numbers
-  img.fillRoundRect(0, 0, 80, 35, 15, TFT_RED);
-  img.drawRoundRect(0, 0, 80, 35, 15, TFT_WHITE);
+  // img.fillRoundRect(0, 0, 180, 80, 1, TFT_RED);
+  // img.drawRoundRect(0, 0, 80, 35, 15, TFT_WHITE);
 
   // Set the font parameters
-  img.setTextSize(1);          // Font size scaling is x1
+  img.setTextSize(1); // Font size scaling is x1
+
   img.setTextColor(TFT_WHITE); // White text, no background colour
 
   // Set text coordinate datum to middle right
   img.setTextDatum(MR_DATUM);
 
   // Draw the number to 3 decimal places at 70,20 in font 4
-  img.drawFloat(num, 0, 70, 20, 4);
+  img.drawFloat(num, 0, IWIDTHx, IHEIGHTx / 2, 7);
 
   // Push sprite to TFT screen CGRAM at coordinate x,y (top left corner)
   // All black pixels will not be drawn hence will show as "transparent"
   img.pushSprite(x, y, TFT_BLACK);
+  img.pushToSprite(&background, x, y, TFT_BLACK);
 
   // Delete sprite to free up the RAM
   img.deleteSprite();
@@ -114,17 +116,16 @@ void showNeedle(int speed)
 void showCoolantTemperature(double tCoolant)
 {
 
+// Define the colours for the arc segments
+#define ARC_COLOR_OK 0x0582
+#define ARC_COLOR_PASSIV 0x7bef
+#define ARC_COLOR_CRITICAL 0xe800
 
-  // Define the colours for the arc segments
-  #define ARC_COLOR_OK 0x0582
-  #define ARC_COLOR_PASSIV 0x7bef
-  #define ARC_COLOR_CRITICAL 0xe800
+#define MIN_TEMPERATURE 30
+#define MAX_TEMPERATURE 110
+#define CRITICAL_TEMPERATURE 98
 
-  #define MIN_TEMPERATURE 30
-  #define MAX_TEMPERATURE 110
-  #define CRITICAL_TEMPERATURE 98
-
-  // Define the arc parameters  
+  // Define the arc parameters
   size_t numSegments = 7;
   uint16_t outerRadius = 112;
   uint8_t arcWidth = 10;
@@ -137,11 +138,11 @@ void showCoolantTemperature(double tCoolant)
   uint16_t segmentEnd[numSegments] = {};
   uint16_t segmentColour[numSegments] = {};
 
-
   // Map the temperature to the segment index
-  uint8_t segmentIndex = (uint8_t) map(tCoolant, MIN_TEMPERATURE, MAX_TEMPERATURE, 0, 6);
+  uint8_t segmentIndex = (uint8_t)map(tCoolant, MIN_TEMPERATURE, MAX_TEMPERATURE, 0, 6);
   segmentIndex = constrain(segmentIndex, 0, numSegments - 1);
-  if(tCoolant < MIN_TEMPERATURE){
+  if (tCoolant < MIN_TEMPERATURE)
+  {
     segmentIndex = 0;
   }
 
@@ -155,11 +156,12 @@ void showCoolantTemperature(double tCoolant)
     if (i < segmentIndex)
     {
       segmentColour[i] = ARC_COLOR_OK;
-      if (tCoolant > CRITICAL_TEMPERATURE){
+      if (tCoolant > CRITICAL_TEMPERATURE)
+      {
         segmentColour[i] = ARC_COLOR_CRITICAL;
       }
     }
-    else 
+    else
     {
       segmentColour[i] = ARC_COLOR_PASSIV;
     }
@@ -171,14 +173,13 @@ void showCoolantTemperature(double tCoolant)
     // Set the start and end angles for the arc segment
     segmentStart[i] = angleStart - angleSegment;
     segmentEnd[i] = angleStart;
-    
+
     // Set the start angle for the next segment
     angleStart = angleStart - angleSegment;
     if (i < numSegments - 2)
     {
       angleStart = angleStart - angleSegmentSpace;
     }
-    
   }
 
   // ******************************************************************
@@ -187,17 +188,16 @@ void showCoolantTemperature(double tCoolant)
   // Draw the first arc segments
   background.drawSmoothArc(120, 120, outerRadius, outerRadius - arcWidth, segmentStart[0], segmentEnd[0], segmentColour[0], segmentColour[0], true);
   // Draw the arc segments
-  for (uint8_t i = 1; i < numSegments-1; i++)
+  for (uint8_t i = 1; i < numSegments - 1; i++)
   {
     // Draw the last arc segment
     if (i == numSegments - 3)
     {
-      background.drawSmoothArc(120, 120, outerRadius, outerRadius - arcWidth, segmentStart[numSegments-1], segmentEnd[numSegments-1], segmentColour[numSegments-1], segmentColour[numSegments-1], true);
+      background.drawSmoothArc(120, 120, outerRadius, outerRadius - arcWidth, segmentStart[numSegments - 1], segmentEnd[numSegments - 1], segmentColour[numSegments - 1], segmentColour[numSegments - 1], true);
     }
     // Draw the other arc segments
     background.drawSmoothArc(120, 120, outerRadius, outerRadius - arcWidth, segmentStart[i], segmentEnd[i], segmentColour[i], segmentColour[i], false);
   }
-
 }
 
 void setup(void)
@@ -243,21 +243,19 @@ void loop()
   {
     background.pushImage(0, 0, 240, 240, _scale_1);
   }
-  
-  showNeedle(i*30);
 
   showCoolantTemperature(i);
+  numberBox(65, 130, i * 30);
+  showNeedle(i * 30);
 
   background.pushSprite(0, 0);
-  // Show time in milliseconds to draw and then push 1 sprite to TFT screen
-  // numberBox( 100, 100, (millis()-dt));
-  numberBox(100, 100, i);
+
   delay(100);
 
   i = i + 2;
   if (i > 130)
   {
-    i = 30;
+    i = 10;
   }
   // delay(10);
 }
