@@ -16,6 +16,35 @@ TFT_eSprite needle = TFT_eSprite(&tft);
 TFT_eSprite background = TFT_eSprite(&tft);
 TFT_eSprite textSprite = TFT_eSprite(&tft);
 
+
+//******************************************************************
+// Init the display and images
+//******************************************************************
+void initDisplay()
+{
+    // Init the display
+    tft.init();
+    tft.fillScreen(TFT_BLACK);
+    tft.setSwapBytes(true);
+    tft.setRotation(0);
+    tft.setPivot(IWIDTH/2, IHEIGHT/2);
+    tft.pushImage(0, 0, IWIDTH, IHEIGHT, _startscreen);
+
+    // Create the background sprite
+    background.createSprite(IWIDTH, IHEIGHT);
+    background.setSwapBytes(true);
+    background.setColorDepth(16);
+    background.fillSprite(TFT_BLACK);
+
+    // Create the needle sprite
+    needle.createSprite(NEEDLE_WIDTH, NEEDLE_HEIGHT);
+    needle.setColorDepth(16);
+    needle.setSwapBytes(true);
+    needle.pushImage(0, 0, NEEDLE_WIDTH, NEEDLE_HEIGHT, _needle);
+    needle.setPivot(NEEDLE_WIDTH/2, NEEDLE_HEIGHT);
+}
+
+
 //******************************************************************
 // Show the engine speed on the screen
 //******************************************************************

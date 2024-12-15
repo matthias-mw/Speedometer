@@ -36,26 +36,12 @@ void setup(void)
 {
   Serial.begin(250000);
 
-  tft.init();
-  tft.fillScreen(TFT_WHITE);
-  tft.setSwapBytes(true);
-  tft.setRotation(0);
-  tft.setPivot(120, 120);
-  tft.pushImage(0, 0, 240, 240, _startscreen);
+  // Init the display
+  initDisplay();
+
+
 
   delay(3000);
-
-  background.createSprite(IWIDTH, IHEIGHT);
-  background.setSwapBytes(true);
-  background.setColorDepth(16);
-  background.createSprite(IWIDTH, IHEIGHT);
-  background.pushImage(0, 0, 240, 240, _scale_1);
-
-  needle.createSprite(20, 100);
-  needle.setColorDepth(16);
-  needle.setSwapBytes(true);
-  needle.pushImage(0, 0, 20, 100, _needle);
-  needle.setPivot(10, 100);
 
 }
 

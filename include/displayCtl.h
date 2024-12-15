@@ -65,6 +65,10 @@ extern TFT_eSprite textSprite;
 #define SPEEDTEXT_WIDTH 136
 #define SPEEDTEXT_HEIGHT 54
 
+// Define Speedometer needle Spritesize
+#define NEEDLE_WIDTH 20
+#define NEEDLE_HEIGHT 100
+
 // Define Standard Text Spritesize
 #define STD_TEXT_WIDTH 136
 #define STD_TEXT_HEIGHT 54
@@ -74,6 +78,18 @@ extern TFT_eSprite textSprite;
 #define ENGINEHOURS_TEXT_HEIGHT 28
 #define ENGINEHOURS_POSITION_X 49
 #define ENGINEHOURS_POSITION_Y 185
+
+
+/*! ******************************************************************
+  @brief    Init the display and images
+  @details  This function will init the display and the images
+          that are used for the display.
+
+  @return   void
+
+*/
+void initDisplay();
+
 
 /*! ******************************************************************
   @brief    Show the engine speed on the screen
