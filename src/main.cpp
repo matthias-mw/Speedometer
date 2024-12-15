@@ -32,7 +32,6 @@
 #include <White_On_Black10pt7b.h>
 #include <G7_Segment_7a32pt7b.h>
 
-
 TFT_eSPI tft = TFT_eSPI(); // Create object "tft"
 
 TFT_eSprite needle = TFT_eSprite(&tft); // Create Sprite object "needle" with pointer to "tft" object
@@ -46,7 +45,6 @@ TFT_eSprite textSprite = TFT_eSprite(&tft); // Create Sprite object "needle" wit
 #define IHEIGHT 240
 
 int i = 10;
-
 
 /*! ******************************************************************
   @brief    Show the engine speed on the screen
@@ -108,19 +106,18 @@ void showText(double speed)
   // textSprite.fillRect(0, 0, IWIDTHx, IHEIGHTx, TFT_RED);
 
   // Set the font parameters
-  textSprite.setTextSize(1);          // Font size scaling is x1
+  textSprite.setTextSize(1);        // Font size scaling is x1
   textSprite.setTextColor(TFT_RED); // White text, no background colour
   textSprite.setTextDatum(MR_DATUM);
   textSprite.setFreeFont(&airstrikeb3d18pt7b);
 
-  textSprite.drawString( speedStr + " °C", IWIDTHy, IHEIGHTy / 2);
+  textSprite.drawString(speedStr + " °C", IWIDTHy, IHEIGHTy / 2);
 
   textSprite.pushToSprite(&background, 57, 50, TFT_BLACK);
 
   // Delete sprite to free up the RAM
   textSprite.deleteSprite();
 }
-
 
 /*! ******************************************************************
   @brief    Show the engine Hours on the screen
@@ -196,94 +193,60 @@ void showCoolantTemperature(double tCoolant)
 {
 
 // Define the colours for the arc segments
-#define ARC_COLOR_OK 0x0582
-#define ARC_COLOR_PASSIV 0x7bef
-#define ARC_COLOR_CRITICAL 0xe800
+#define ARC_COLOR_OK 0x0d00
+#define ARC_COLOR_PASSIV 0x528a
+#define ARC_COLOR_CRITICAL 0xd800
 
 #define MIN_TEMPERATURE 30
-#define MAX_TEMPERATURE 110
+#define MAX_TEMPERATURE 125
 #define CRITICAL_TEMPERATURE 98
 
   // Define the arc parameters
-  size_t numSegments = 7;
   uint16_t outerRadius = 108;
   uint8_t arcWidth = 8;
-  uint16_t angleSegment = 10;
-  uint16_t angleSegmentSpace = 2;
+
+  double angleSegment = 10;
   uint16_t angleStart = 330;
+  uint16_t angleEnd = 270;
   uint16_t arcColor = 0x0000;
 
-  uint16_t segmentStart[numSegments] = {};
-  uint16_t segmentEnd[numSegments] = {};
-  uint16_t segmentColour[numSegments] = {};
 
-  // Map the temperature to the segment index
-  uint8_t segmentIndex = (uint8_t)map(tCoolant, MIN_TEMPERATURE, MAX_TEMPERATURE, 0, 6);
-  segmentIndex = constrain(segmentIndex, 0, numSegments - 1);
-  if (tCoolant < MIN_TEMPERATURE)
+  // String with the coolant temperature
+  String tCoolantStr = String(tCoolant, 0);
+
+  // ******************************************************************
+  // Draw the Arc 
+  // ******************************************************************
+  // Specify the colour of the arc
+  if (tCoolant > CRITICAL_TEMPERATURE)
   {
-    segmentIndex = 0;
+    arcColor = ARC_COLOR_CRITICAL;
+  }
+  else
+  {
+    arcColor = ARC_COLOR_OK;
+  }
+  // Limit the temperature to the min and max values
+  if (tCoolant > MAX_TEMPERATURE){
+    tCoolant = MAX_TEMPERATURE;
+  }
+  if (tCoolant < MIN_TEMPERATURE + 2) 
+  {
+    tCoolant = MIN_TEMPERATURE + 2;
+    arcColor = ARC_COLOR_PASSIV;
   }
 
-  // ******************************************************************
-  // Calculate the arc segments
-  // ******************************************************************
-  // Draw the arc segments
-  for (uint8_t i = 0; i < numSegments; i++)
-  {
-    // Set the colour of the arc segment
-    if (i < segmentIndex)
-    {
-      segmentColour[i] = ARC_COLOR_OK;
-      if (tCoolant > CRITICAL_TEMPERATURE)
-      {
-        segmentColour[i] = ARC_COLOR_CRITICAL;
-      }
-    }
-    else
-    {
-      segmentColour[i] = ARC_COLOR_PASSIV;
-    }
+  // Calculate the angles for the arc
+  angleSegment =(double)(angleEnd-angleStart) / (MAX_TEMPERATURE-MIN_TEMPERATURE);
+  angleSegment = (double)angleStart + angleSegment * (tCoolant-MIN_TEMPERATURE);
 
-    // Set the angle segment and space for the arc segment
-    angleSegment = ((i == 0) || (i == numSegments - 1)) ? 1 : 10;
-    angleSegmentSpace = ((i == 0) || (i == numSegments - 1)) ? 0 : 2;
-
-    // Set the start and end angles for the arc segment
-    segmentStart[i] = angleStart - angleSegment;
-    segmentEnd[i] = angleStart;
-
-    // Set the start angle for the next segment
-    angleStart = angleStart - angleSegment;
-    if (i < numSegments - 2)
-    {
-      angleStart = angleStart - angleSegmentSpace;
-    }
-  }
-
-  // ******************************************************************
-  // Draw the arc segments
-  // ******************************************************************
-  // Draw the first arc segments
-  background.drawSmoothArc(120, 120, outerRadius, outerRadius - arcWidth, segmentStart[0], segmentEnd[0], segmentColour[0], segmentColour[0], true);
-  // Draw the arc segments
-  for (uint8_t i = 1; i < numSegments - 1; i++)
-  {
-    // Draw the last arc segment
-    if (i == numSegments - 3)
-    {
-      background.drawSmoothArc(120, 120, outerRadius, outerRadius - arcWidth, segmentStart[numSegments - 1], segmentEnd[numSegments - 1], segmentColour[numSegments - 1], segmentColour[numSegments - 1], true);
-    }
-    // Draw the other arc segments
-    background.drawSmoothArc(120, 120, outerRadius, outerRadius - arcWidth, segmentStart[i], segmentEnd[i], segmentColour[i], segmentColour[i], false);
-  }
+  // Draw the arc on the background
+  background.drawSmoothArc(120, 120, outerRadius, outerRadius - arcWidth, (uint16_t)angleSegment, angleStart, arcColor, TFT_BLACK, true);
 
   // ******************************************************************
   // Draw the Value
   // ******************************************************************
-
-  String tCoolantStr = String(tCoolant, 0);
-
+ 
   // Create a 8-bit sprite 80 pixels wide, 35 high (2800 bytes of RAM needed)
   textSprite.setColorDepth(16);
   textSprite.createSprite(61, 28);
