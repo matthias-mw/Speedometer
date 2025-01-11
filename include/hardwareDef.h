@@ -20,5 +20,11 @@
 
 
 
+// --------> NMEA2000 <---------------------
+/// GPIO where the CAN-TX is connected
+#define ESP32_CAN_TX_PIN (gpio_num_t)35
+/// GPIO where the CAN-RX is connected
+#define ESP32_CAN_RX_PIN (gpio_num_t)34
+
 
 #endif // _HARDWAREDEF_H_
