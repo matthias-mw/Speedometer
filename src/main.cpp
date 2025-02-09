@@ -59,10 +59,12 @@ void loop()
     background.pushImage(0, 0, 240, 240, _scale_1);
   }
 
-  showCoolantTemperature(i);
-  showEngineSpeed(i * 29);
-  showNeedle(i * 30);
-  showEngineHours(i * 23.1);
+  //delay(1000);
+
+  showCoolantTemperature(DisplayData.EngineCoolantTemperature);
+  showEngineSpeed(DisplayData.EngineSpeed);
+  showNeedle(DisplayData.EngineSpeed);
+  showEngineHours(DisplayData.EngineHours);
   // showText(i * 21);
 
   background.pushSprite(0, 0);
@@ -74,7 +76,7 @@ void loop()
   {
     i = 10;
   }
-  // delay(10);
+  delay(10);
   updateN2K();
 }
 

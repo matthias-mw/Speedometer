@@ -21,6 +21,10 @@
 Stream *OutputStream;
 #endif
 
+// Global Structure for the display data
+tDisplayData DisplayData;
+
+// Handler for the NMEA2000 messages
 tNMEA2000Handler NMEA2000Handlers[] = {
     {126992L, &SystemTime},
     {127488L, &EngineRapid},
@@ -31,6 +35,7 @@ tNMEA2000Handler NMEA2000Handlers[] = {
 
 void updateN2K(void)
 {
+  // Process NMEA2000 messages
   NMEA2000.ParseMessages();
 };
 
@@ -143,6 +148,12 @@ void EngineRapid(const tN2kMsg &N2kMsg)
     PrintLabelValWithConversionCheckUnDef("  boost pressure (Pa): ", EngineBoostPressure, 0, true);
     PrintLabelValWithConversionCheckUnDef("  tilt trim: ", EngineTiltTrim, 0, true);
 #endif
+    // Update the display data if the engine instance is the one to be displayed
+    if (EngineInstance == DISPLAY_ENGINE_INSTANCE)
+    {
+      // Update the display data
+      DisplayData.EngineSpeed = EngineSpeed;
+    }
   }
   else
   {
@@ -161,7 +172,7 @@ void EngineDynamicParameters(const tN2kMsg &N2kMsg)
   double EngineOilPress;
   double EngineOilTemp;
   double EngineCoolantTemp;
-  double AltenatorVoltage;
+  double AlternatorVoltage;
   double FuelRate;
   double EngineHours;
   double EngineCoolantPress;
@@ -172,7 +183,7 @@ void EngineDynamicParameters(const tN2kMsg &N2kMsg)
   tN2kEngineDiscreteStatus2 Status2;
 
   if (ParseN2kEngineDynamicParam(N2kMsg, EngineInstance, EngineOilPress, EngineOilTemp, EngineCoolantTemp,
-                                 AltenatorVoltage, FuelRate, EngineHours,
+                                 AlternatorVoltage, FuelRate, EngineHours,
                                  EngineCoolantPress, EngineFuelPress,
                                  EngineLoad, EngineTorque, Status1, Status2))
   {
@@ -182,7 +193,7 @@ void EngineDynamicParameters(const tN2kMsg &N2kMsg)
     PrintLabelValWithConversionCheckUnDef("  oil pressure (Pa): ", EngineOilPress, 0, true);
     PrintLabelValWithConversionCheckUnDef("  oil temp (C): ", EngineOilTemp, &KelvinToC, true);
     PrintLabelValWithConversionCheckUnDef("  coolant temp (C): ", EngineCoolantTemp, &KelvinToC, true);
-    PrintLabelValWithConversionCheckUnDef("  altenator voltage (V): ", AltenatorVoltage, 0, true);
+    PrintLabelValWithConversionCheckUnDef("  altenator voltage (V): ", AlternatorVoltage, 0, true);
     PrintLabelValWithConversionCheckUnDef("  fuel rate (l/h): ", FuelRate, 0, true);
     PrintLabelValWithConversionCheckUnDef("  engine hours (h): ", EngineHours, &SecondsToh, true);
     PrintLabelValWithConversionCheckUnDef("  coolant pressure (Pa): ", EngineCoolantPress, 0, true);
@@ -190,6 +201,17 @@ void EngineDynamicParameters(const tN2kMsg &N2kMsg)
     PrintLabelValWithConversionCheckUnDef("  engine load (%): ", EngineLoad, 0, true);
     PrintLabelValWithConversionCheckUnDef("  engine torque (%): ", EngineTorque, 0, true);
 #endif
+
+    // Update the display data if the engine instance is the one to be displayed
+    if (EngineInstance == DISPLAY_ENGINE_INSTANCE)
+    {
+      DisplayData.EngineHours = SecondsToh(EngineHours);
+      DisplayData.EngineOilPressure = PascalTomBar(EngineOilPress);
+      DisplayData.EngineCoolantTemperature = KelvinToC(EngineCoolantTemp);
+      DisplayData.EngineAlternatorVoltage = AlternatorVoltage;
+      DisplayData.EngineDiscreteStatus1 = Status1;
+      DisplayData.EngineDiscreteStatus2 = Status2;
+    }
   }
   else
   {

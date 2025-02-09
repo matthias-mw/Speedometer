@@ -48,7 +48,7 @@ typedef struct
   /// Engine Hours
   double EngineHours;
   /// Coolant Temperature
-  double CoolantTemperature;
+  double EngineCoolantTemperature;
   /// Engine Oil Pressure
   double EngineOilPressure;
   /// Engine Alternator Voltage
@@ -66,6 +66,9 @@ extern Stream *OutputStream;
 
 #endif
 
+/// Global Structure for the display data
+extern tDisplayData DisplayData;
+
 
 /*! ******************************************************************
   @brief    Init the NMEA2000 Inteface
@@ -76,17 +79,61 @@ extern Stream *OutputStream;
 int8_t initN2K(void);
 
 
+/*! ******************************************************************
+  @brief    Evaluate System Time Message
+  @details  This function will evaluate the system time message and
+            store the data in the display data structure.
+            \ref DisplayData
 
+  @param    N2kMsg NMEA2000 message
+ */
 void SystemTime(const tN2kMsg &N2kMsg);
+
+/*! ******************************************************************
+  @brief    Evaluate EngineRapid Message
+  @details  This function will evaluate the engine rapid message and
+            store the data in the display data structure.
+            \ref DisplayData
+
+  @param    N2kMsg NMEA2000 message
+ */
 void EngineRapid(const tN2kMsg &N2kMsg);
+
+/*! ******************************************************************
+  @brief    Evaluate EngineDynamic Message
+  @details  This function will evaluate the engine dynamic message and
+            store the data in the display data structure.
+            \ref DisplayData
+
+  @param    N2kMsg NMEA2000 message
+ */
 void EngineDynamicParameters(const tN2kMsg &N2kMsg);
+
+/*! ******************************************************************
+  @brief    Evaluate Transmission Parameters Message
+  @details  This function will evaluate the transmission parameters
+            message and store the data in the display data structure.
+            \ref DisplayData
+
+  @param    N2kMsg NMEA2000 message
+ */
 void TransmissionParameters(const tN2kMsg &N2kMsg);
 
+/*! ******************************************************************
+  @brief    NMEA2000 Message handler
+  @details  This function will handle incoming the NMEA2000 messages and
+            call the corresponding handler function.
 
-
-
+  @param    N2kMsg NMEA2000 message
+ */
 void HandleNMEA2000Msg(const tN2kMsg &N2kMsg);
 
+/*! ******************************************************************
+  @brief    Update the NMEA2000 messages
+  @details  this function will check the NMEA2000 bus for new messages
+            and call the message handler for each message.
+            \ref HandleNMEA2000Msg, \ref NEA2000.setMessageHandler
+ */
 void updateN2K(void);
 
 #endif // _PROCESS_N2K_H_
