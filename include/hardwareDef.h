@@ -19,6 +19,23 @@
 #include <Arduino.h>
 
 
+/*! ******************************************************************
+  \brief  Debug Level for the project
+
+  This defines the debug level for the project. The debug level
+  is used to define the output of debug messages. The higher the
+  level the more debug messages are printed.
+
+  0: No debug messages
+  1: Only error messages
+  2: Error and warning messages
+  3: Error, warning and info messages
+*/
+#define DEBUG_LEVEL 1
+
+/// Define if raw N2K messages should be printed (if DEBUG_LEVEL > 0) true/false
+#define DEBUG_RAW_N2K_MESSAGES false  
+
 
 // --------> NMEA2000 <---------------------
 /// GPIO where the CAN-TX is connected
