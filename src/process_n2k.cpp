@@ -211,6 +211,7 @@ void EngineDynamicParameters(const tN2kMsg &N2kMsg)
       DisplayData.EngineAlternatorVoltage = AlternatorVoltage;
       DisplayData.EngineDiscreteStatus1 = Status1;
       DisplayData.EngineDiscreteStatus2 = Status2;
+      DisplayData.LowOilPressureWarning = Status1.Bits.LowOilPressure;
     }
   }
   else

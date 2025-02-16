@@ -16,7 +16,6 @@ TFT_eSprite needle = TFT_eSprite(&tft);
 TFT_eSprite background = TFT_eSprite(&tft);
 TFT_eSprite textSprite = TFT_eSprite(&tft);
 
-
 //******************************************************************
 // Init the display and images
 //******************************************************************
@@ -27,7 +26,7 @@ void initDisplay()
     tft.fillScreen(TFT_BLACK);
     tft.setSwapBytes(true);
     tft.setRotation(0);
-    tft.setPivot(IWIDTH/2, IHEIGHT/2);
+    tft.setPivot(IWIDTH / 2, IHEIGHT / 2);
     tft.pushImage(0, 0, IWIDTH, IHEIGHT, _startscreen);
 
     // Create the background sprite
@@ -41,9 +40,8 @@ void initDisplay()
     needle.setColorDepth(16);
     needle.setSwapBytes(true);
     needle.pushImage(0, 0, NEEDLE_WIDTH, NEEDLE_HEIGHT, _needle);
-    needle.setPivot(NEEDLE_WIDTH/2, NEEDLE_HEIGHT);
+    needle.setPivot(NEEDLE_WIDTH / 2, NEEDLE_HEIGHT);
 }
-
 
 //******************************************************************
 // Show the engine speed on the screen
@@ -80,7 +78,6 @@ void updateDspEngineSpeed(double speed)
 
     // Show the needle on the screen
     updateDspNeedlePosition(speed);
-
 }
 
 //******************************************************************
@@ -157,7 +154,7 @@ void updateDspEngineHours(double engineHours)
     textSprite.setFreeFont(&White_On_Black10pt7b); // Set the font
 
     // Draw Text
-    textSprite.drawString(engineHoursStr + "h",(ENGINEHOURS_TEXT_WIDTH - 1), (ENGINEHOURS_TEXT_HEIGHT / 2) - 3);
+    textSprite.drawString(engineHoursStr + "h", (ENGINEHOURS_TEXT_WIDTH - 1), (ENGINEHOURS_TEXT_HEIGHT / 2) - 3);
 
     // Push sprite to TFT screen CGRAM at coordinate x,y (top left corner)
     // All black pixels will not be drawn hence will show as "transparent"
@@ -249,19 +246,20 @@ void updateDspCoolantTemperatur(double tCoolant)
 //******************************************************************
 // update the display
 //******************************************************************
-void updateDisplay(double speed, double tCoolant, double engineHours, bool oilPressureWarningActive)  
+void updateDisplay(double speed, double tCoolant, double engineHours, bool oilPressureWarningActive)
 {
-
     // Push the background sprite to the TFT
     if (oilPressureWarningActive)
     {
-      background.pushImage(0, 0, 240, 240, _scale_2);
+        // Push the background sprite with OilWarning
+        background.pushImage(0, 0, 240, 240, _scale_2);
     }
     else
     {
-      background.pushImage(0, 0, 240, 240, _scale_1);
+        // Push the background sprite with no OilWarning
+        background.pushImage(0, 0, 240, 240, _scale_1);
     }
-  
+
     // Show the engine speed
     updateDspEngineSpeed(speed);
 

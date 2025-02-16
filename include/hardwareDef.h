@@ -31,13 +31,33 @@
   2: Error and warning messages
   3: Error, warning and info messages
 */
-//#define DEBUG_LEVEL 3
+#define DEBUG_LEVEL 1
 
 /// Define if raw N2K messages should be printed (if DEBUG_LEVEL > 0) true/false
 #define DEBUG_RAW_N2K_MESSAGES false  
 
 /// Define Engine Instance to be displayed
 #define DISPLAY_ENGINE_INSTANCE 0
+
+
+// --------> Display Brightness<---------------------
+/// Define the Pin for Brightness Measurement
+#define BRIGHTNESS_PIN 36
+/// Define Brightness Analog Value for Max Daylight
+#define ANALOG_VALUE_MAX_DAYLIGHT 500
+/// Define Brightness Output Value for Max Daylight
+#define BRIGHTNESS_OUTPUT_MAX_DAYLIGHT 253
+
+/// Define Brightness Analog Value for Daylight
+#define ANALOG_VALUE_DAYLIGHT 1000
+/// Define Brightness Output Value for Daylight
+#define BRIGHTNESS_OUTPUT_DAYLIGHT 120
+
+/// Define Brightness Analog Value for Night
+#define ANALOG_VALUE_NIGHT 2000
+/// Define Brightness Output Value for Night
+#define BRIGHTNESS_OUTPUT_NIGHT 20
+
 
 
 

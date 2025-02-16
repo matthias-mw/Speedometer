@@ -53,6 +53,8 @@ typedef struct
   double EngineOilPressure;
   /// Engine Alternator Voltage
   double EngineAlternatorVoltage;
+  /// Low Oil Pressure Waring
+  bool LowOilPressureWarning;
   /// Engine Discrete Status 1
   tN2kEngineDiscreteStatus1 EngineDiscreteStatus1;
   /// Engine Discrete Status 2
