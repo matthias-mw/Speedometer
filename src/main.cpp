@@ -10,23 +10,12 @@
  *  * 
  */
 
-
-
-#include <hardwareDef.h>
+ #include <hardwareDef.h>
 #include <Arduino.h>
 #include "displayCtl.h"
-
-
-
-
 #include <process_n2k.h>
 
-
-
-int i = 10;
-
-
-
+// Setup the the software
 void setup(void)
 {
   
@@ -38,8 +27,7 @@ void setup(void)
   // Init the display
   initDisplay();
 
-
-
+  // Initial Display Delay for Startscreen
   delay(3000);
 
 }
@@ -48,35 +36,14 @@ void setup(void)
 void loop()
 {
 
-  uint32_t dt = millis();
-
-  if (i > 100)
-  {
-    background.pushImage(0, 0, 240, 240, _scale_2);
-  }
-  else
-  {
-    background.pushImage(0, 0, 240, 240, _scale_1);
-  }
-
-  //delay(1000);
-
-  showCoolantTemperature(DisplayData.EngineCoolantTemperature);
-  showEngineSpeed(DisplayData.EngineSpeed);
-  showNeedle(DisplayData.EngineSpeed);
-  showEngineHours(DisplayData.EngineHours);
-  // showText(i * 21);
-
-  background.pushSprite(0, 0);
-
-  //delay(1);
-
-  i = i + 2;
-  if (i > 130)
-  {
-    i = 10;
-  }
-  delay(10);
+  // Update the NMEA2000 messages
   updateN2K();
+
+  // Show the actual values on the screen
+  updateDisplay(DisplayData.EngineSpeed, DisplayData.EngineCoolantTemperature, DisplayData.EngineHours,0);
+  
+
+  delay(20);
+  
 }
 

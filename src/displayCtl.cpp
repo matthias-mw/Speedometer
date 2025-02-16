@@ -48,7 +48,7 @@ void initDisplay()
 //******************************************************************
 // Show the engine speed on the screen
 //******************************************************************
-void showEngineSpeed(double speed)
+void updateDspEngineSpeed(double speed)
 {
     // Transfer the speed to a string
     String speedStr = String(speed, 0);
@@ -77,6 +77,25 @@ void showEngineSpeed(double speed)
 
     // Delete sprite to free up the RAM
     textSprite.deleteSprite();
+
+    // Show the needle on the screen
+    updateDspNeedlePosition(speed);
+
+}
+
+//******************************************************************
+// Show a needle on the screen at a given engine speed
+//******************************************************************
+void updateDspNeedlePosition(int speed)
+{
+    int angle = map(speed, 0, 4000, 226, 386);
+    // Limit the angle to 0-359
+    if (angle > 359)
+    {
+        angle = angle - 360;
+    }
+    // Draw the needle at the given angle
+    needle.pushRotated(&background, angle, TFT_BLACK);
 }
 
 //******************************************************************
@@ -116,7 +135,7 @@ void showText(double speed)
 //******************************************************************
 // Show the engine Hours on the screen
 //******************************************************************
-void showEngineHours(double engineHours)
+void updateDspEngineHours(double engineHours)
 {
     // Transfer the engine hours to a string
     String engineHoursStr = String(engineHours, 1);
@@ -149,25 +168,9 @@ void showEngineHours(double engineHours)
 }
 
 //******************************************************************
-// Show a needle on the screen at a given engine speed
-//******************************************************************
-void showNeedle(int speed)
-{
-    int angle = map(speed, 0, 4000, 226, 386);
-    // Limit the angle to 0-359
-    if (angle > 359)
-    {
-        angle = angle - 360;
-    }
-    // Draw the needle at the given angle
-    //needle.pushRotated(&background, angle, 0x041f);
-    needle.pushRotated(&background, angle, TFT_BLACK);
-}
-
-//******************************************************************
 // Show coolant temperature on the screen
 //******************************************************************
-void showCoolantTemperature(double tCoolant)
+void updateDspCoolantTemperatur(double tCoolant)
 {
     double angleSegment = 0;
     uint16_t arcColor = 0x0000;
@@ -241,4 +244,33 @@ void showCoolantTemperature(double tCoolant)
 
     // Delete sprite to free up the RAM
     textSprite.deleteSprite();
+}
+
+//******************************************************************
+// update the display
+//******************************************************************
+void updateDisplay(double speed, double tCoolant, double engineHours, bool oilPressureWarningActive)  
+{
+
+    // Push the background sprite to the TFT
+    if (oilPressureWarningActive)
+    {
+      background.pushImage(0, 0, 240, 240, _scale_2);
+    }
+    else
+    {
+      background.pushImage(0, 0, 240, 240, _scale_1);
+    }
+  
+    // Show the engine speed
+    updateDspEngineSpeed(speed);
+
+    // Show the coolant temperature
+    updateDspCoolantTemperatur(tCoolant);
+
+    // Show the engine hours
+    updateDspEngineHours(engineHours);
+
+    // Push the background sprite to the TFT
+    background.pushSprite(0, 0);
 }

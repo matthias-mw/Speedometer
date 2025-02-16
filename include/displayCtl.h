@@ -98,7 +98,7 @@ void initDisplay();
   @param    speed <double> The engine speed in RPM
   @return   void
 */
-void showEngineSpeed(double speed);
+void updateDspEngineSpeed(double speed);
 
 void showText(double speed);
 
@@ -109,7 +109,7 @@ void showText(double speed);
   @param    engineHours <double> The engine hours
   @return   void
 */
-void showEngineHours(double engineHours);
+void updateDspEngineHours(double engineHours);
 
 /*! ******************************************************************
   @brief    Show a needle on the screen at a given engine speed
@@ -119,7 +119,7 @@ void showEngineHours(double engineHours);
 
   @param    speed  The engine speed in RPM
 */
-void showNeedle(int speed);
+void updateDspNeedlePosition(int speed);
 
 /*! ******************************************************************
   @brief    Show coolant temperature on the screen
@@ -132,7 +132,21 @@ void showNeedle(int speed);
   @return   void
 
 */
-void showCoolantTemperature(double tCoolant);
+void updateDspCoolantTemperatur(double tCoolant);
 
+/*! ******************************************************************
+  @brief    update the whole display
+  @details  This function will update the display with the given
+          values for speed, coolant temperature and engine hours.
+
+  @param    speed <double> The engine speed in RPM
+  @param    tCoolant <double> The coolant temperature in degrees
+  @param    engineHours <double> The engine hours
+  @param    oilPressureWarningActive <bool> True if the oil pressure
+          warning is active
+  @return   void
+
+*/
+void updateDisplay(double speed, double tCoolant, double engineHours, bool oilPressureWarningActive);
 
 #endif // _DISPLAYCTL_H_
