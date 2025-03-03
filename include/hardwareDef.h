@@ -42,7 +42,7 @@
 
 // --------> Display Brightness<---------------------
 /// Define the Pin for Brightness Measurement
-#define BRIGHTNESS_PIN 36
+#define BRIGHTNESS_PIN 39
 /// Define Brightness Analog Value for Max Daylight
 #define ANALOG_VALUE_MAX_DAYLIGHT 500
 /// Define Brightness Output Value for Max Daylight
@@ -63,9 +63,9 @@
 
 // --------> NMEA2000 <---------------------
 /// GPIO where the CAN-TX is connected
-#define ESP32_CAN_TX_PIN (gpio_num_t)35
+#define ESP32_CAN_TX_PIN (gpio_num_t)16
 /// GPIO where the CAN-RX is connected
-#define ESP32_CAN_RX_PIN (gpio_num_t)34
+#define ESP32_CAN_RX_PIN (gpio_num_t)17
 
 
 #endif // _HARDWAREDEF_H_
