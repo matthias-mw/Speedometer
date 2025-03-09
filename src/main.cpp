@@ -15,7 +15,6 @@
 #include "displayCtl.h"
 #include <process_n2k.h>
 
-
 /*!
  * \brief Calculate the display brightness
  *
@@ -42,23 +41,21 @@ void setup(void)
   Serial.begin(115200);
   delay(500);
 
-  
   // Init the display
   initDisplay();
 
   // Initial Display Delay for Startscreen
   delay(5000);
 
-  //set the resolution to 12 bits (0-4096)
-  analogReadResolution(12);
-
+  // Set the PWM Output for the Display Brightness
   pinMode(TFT_BL, OUTPUT);
-
+  // Set the brightness pin to input
   pinMode(BRIGHTNESS_PIN, INPUT);
+  // set the resolution to 12 bits (0-4096)
+  analogReadResolution(12);
 
   // Init the NMEA2000
   initN2K();
-
 }
 
 // *****************************************************************************
@@ -67,20 +64,15 @@ void setup(void)
 void loop()
 {
   // Update the NMEA2000 messages
-  //updateN2K();
+  updateN2K();
 
   // Set the display brightness
   setDisplayBrightness();
 
   // Show the actual values on the screen
-  // updateDisplay(DisplayData.EngineSpeed, DisplayData.EngineCoolantTemperature, DisplayData.EngineHours, DisplayData.LowOilPressureWarning);
-  
-  updateDisplay(analogRead(BRIGHTNESS_PIN), 75, calcDisplayBrightness(), 0);
+  updateDisplay(DisplayData.EngineSpeed, DisplayData.EngineCoolantTemperature, DisplayData.EngineHours, DisplayData.LowOilPressureWarning);
 
   delay(250);
-
-  Serial.println("Loop");
-  updateN2K();
 }
 
 // *****************************************************************************
@@ -93,7 +85,6 @@ uint8_t calcDisplayBrightness()
   uint8_t cnt = 0;
   uint32_t value = 0;
 
-
   // Read the brightness value 8 times and calculate the average
   while (cnt < 8)
   {
@@ -105,17 +96,17 @@ uint8_t calcDisplayBrightness()
   // Adjust the brightness
   if (value > ANALOG_VALUE_NIGHT)
   {
-    //Night, it is dark
+    // Night, it is dark
     brightness = BRIGHTNESS_OUTPUT_NIGHT;
   }
   else if (value > ANALOG_VALUE_DAYLIGHT)
   {
-    //Normal Daylight grey sky
+    // Normal Daylight grey sky
     brightness = BRIGHTNESS_OUTPUT_DAYLIGHT;
   }
-  else 
+  else
   {
-    //Now its bright Daylight
+    // Now its bright Daylight
     brightness = BRIGHTNESS_OUTPUT_MAX_DAYLIGHT;
   }
 
@@ -131,7 +122,6 @@ uint8_t calcDisplayBrightness()
 
   // return the brightness value
   return brightness;
-
 }
 
 // *****************************************************************************
@@ -148,4 +138,3 @@ void setDisplayBrightness()
   // Set the brightness
   analogWrite(TFT_BL, brightness);
 }
-
