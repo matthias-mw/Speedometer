@@ -42,14 +42,12 @@ void setup(void)
   Serial.begin(115200);
   delay(500);
 
-  // // Init the NMEA2000
-  // initN2K();
-
+  
   // Init the display
   initDisplay();
 
   // Initial Display Delay for Startscreen
-  delay(3000);
+  delay(5000);
 
   //set the resolution to 12 bits (0-4096)
   analogReadResolution(12);
@@ -57,6 +55,10 @@ void setup(void)
   pinMode(TFT_BL, OUTPUT);
 
   pinMode(BRIGHTNESS_PIN, INPUT);
+
+  // Init the NMEA2000
+  initN2K();
+
 }
 
 // *****************************************************************************
@@ -73,11 +75,12 @@ void loop()
   // Show the actual values on the screen
   // updateDisplay(DisplayData.EngineSpeed, DisplayData.EngineCoolantTemperature, DisplayData.EngineHours, DisplayData.LowOilPressureWarning);
   
-  updateDisplay(2310, 75, 1242, 0);
+  updateDisplay(analogRead(BRIGHTNESS_PIN), 75, calcDisplayBrightness(), 0);
 
   delay(250);
 
   Serial.println("Loop");
+  updateN2K();
 }
 
 // *****************************************************************************
