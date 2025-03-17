@@ -6,8 +6,8 @@
  * \author 		Matthias Werner
  * \date		10 Sep 2022
  *
- * - Hardware:          az-delivery-devkit-v4
- * - Prozessor:         ESP32-WROOM
+ * - Hardware:          Seeed Studio Xiao ESP32-S3 Dev Board
+ * - Prozessor:         ESP32-S3
  *
  * ************************************************************
  * \version PROJECT_VERSION
@@ -31,7 +31,7 @@
   2: Error and warning messages
   3: Error, warning and info messages
 */
-#define DEBUG_LEVEL 3
+#define DEBUG_LEVEL 1
 
 /// Define if raw N2K messages should be printed (if DEBUG_LEVEL > 0) true/false
 #define DEBUG_RAW_N2K_MESSAGES false  
@@ -43,18 +43,22 @@
 // --------> Display Brightness<---------------------
 /// Define the Pin for Brightness Measurement
 #define BRIGHTNESS_PIN 1
+
+/// Define Hysterese for Brightness Measurement
+#define BRIGHTNESS_HYSTERESE 50
+
 /// Define Brightness Analog Value for Max Daylight
 #define ANALOG_VALUE_MAX_DAYLIGHT 500
 /// Define Brightness Output Value for Max Daylight
 #define BRIGHTNESS_OUTPUT_MAX_DAYLIGHT 253
 
 /// Define Brightness Analog Value for Daylight
-#define ANALOG_VALUE_DAYLIGHT 1600
+#define ANALOG_VALUE_DAYLIGHT 1500
 /// Define Brightness Output Value for Daylight
 #define BRIGHTNESS_OUTPUT_DAYLIGHT 120
 
 /// Define Brightness Analog Value for Night
-#define ANALOG_VALUE_NIGHT 2000
+#define ANALOG_VALUE_NIGHT 1900
 /// Define Brightness Output Value for Night
 #define BRIGHTNESS_OUTPUT_NIGHT 20
 

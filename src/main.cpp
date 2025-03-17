@@ -34,7 +34,10 @@ uint8_t calcDisplayBrightness();
  */
 void setDisplayBrightness();
 
+
+// *****************************************************************************
 // Setup the the software
+// *****************************************************************************
 void setup(void)
 {
 
@@ -72,7 +75,7 @@ void loop()
   // Show the actual values on the screen
   updateDisplay(DisplayData.EngineSpeed, DisplayData.EngineCoolantTemperature, DisplayData.EngineHours, DisplayData.LowOilPressureWarning);
 
-  delay(250);
+  delay(100);
 }
 
 // *****************************************************************************
@@ -80,18 +83,26 @@ void loop()
 // *****************************************************************************
 uint8_t calcDisplayBrightness()
 {
-
+  static uint32_t lastValue = 0;
   uint8_t brightness = 0;
-  uint8_t cnt = 0;
   uint32_t value = 0;
 
   // Read the brightness value 8 times and calculate the average
-  while (cnt < 8)
+  for (uint8_t cnt = 0; cnt < 8; cnt++)
   {
     value += analogRead(BRIGHTNESS_PIN);
-    cnt++;
   }
   value = value >> 3;
+
+  // Apply hysteresis to the measured value
+  if (abs((int32_t)value - (int32_t)lastValue) < BRIGHTNESS_HYSTERESE)
+  {
+    value = lastValue;
+  }
+  else
+  {
+    lastValue = value;
+  }
 
   // Adjust the brightness
   if (value > ANALOG_VALUE_NIGHT)
