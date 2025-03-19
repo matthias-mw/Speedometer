@@ -31,7 +31,7 @@
   2: Error and warning messages
   3: Error, warning and info messages
 */
-#define DEBUG_LEVEL 1
+#define DEBUG_LEVEL 3
 
 /// Define if raw N2K messages should be printed (if DEBUG_LEVEL > 0) true/false
 #define DEBUG_RAW_N2K_MESSAGES false  

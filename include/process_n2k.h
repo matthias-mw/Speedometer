@@ -36,7 +36,7 @@ typedef struct
 
 /*! ******************************************************************
   @struct tDisplayData
-  @brief  Structure for the data wich will be displayed
+  @brief  Structure for the data which will be displayed
 
   This structure contains the data which will be displayed on the
   screen.
@@ -53,7 +53,7 @@ typedef struct
   double EngineOilPressure;
   /// Engine Alternator Voltage
   double EngineAlternatorVoltage;
-  /// Low Oil Pressure Waring
+  /// Low Oil Pressure Warning
   bool LowOilPressureWarning;
   /// Engine Discrete Status 1
   tN2kEngineDiscreteStatus1 EngineDiscreteStatus1;
@@ -61,12 +61,12 @@ typedef struct
   tN2kEngineDiscreteStatus2 EngineDiscreteStatus2;
 } tDisplayData;
 
-#if DEBUG_LEVEL > 0
+#if DEBUG_LEVEL > 0 // Debug level is greater than 0
 
 /// Pointer to the output stream
 extern Stream *OutputStream;
 
-#endif
+#endif // End of DEBUG_LEVEL > 0
 
 /// Global Structure for the display data
 extern tDisplayData DisplayData;
@@ -134,7 +134,7 @@ void HandleNMEA2000Msg(const tN2kMsg &N2kMsg);
   @brief    Update the NMEA2000 messages
   @details  this function will check the NMEA2000 bus for new messages
             and call the message handler for each message.
-            \ref HandleNMEA2000Msg, \ref NEA2000.setMessageHandler
+            \ref HandleNMEA2000Msg, \ref NMEA2000.setMessageHandler
  */
 void updateN2K(void);
 
