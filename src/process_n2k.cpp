@@ -21,7 +21,7 @@
 #endif
 
 // Only if Debug is enable
-#if DEBUG_LEVEL > 0
+#ifdef DEBUG_ERROR
 // Output stream for the NMEA2000 messages
 Stream *OutputStream;
 #endif
@@ -48,7 +48,7 @@ void updateN2K(void)
 // Helper function to print "Failed to parse PGN" debug message
 void PrintFailedToParsePGN(uint32_t PGN)
 {
-#if DEBUG_LEVEL > 0
+#ifdef DEBUG_ERROR
   OutputStream->print("Failed to parse PGN: ");
   OutputStream->println(PGN);
 #endif
@@ -61,7 +61,7 @@ template <typename T>
 void PrintLabelValWithConversionCheckUnDef(const char *label, T val, double (*ConvFunc)(double val) = nullptr, bool AddLf = false, int8_t DecimalPlaces = -1)
 {
   // Only if Debug is enabled
-#if DEBUG_LEVEL > 0
+#ifdef DEBUG_ERROR
   OutputStream->print(label);
   if (!N2kIsNA(val))
   {
@@ -99,7 +99,7 @@ void PrintLabelValWithConversionCheckUnDef(const char *label, T val, double (*Co
 // Init the NMEA2000 Interface
 int8_t initN2K(void)
 {
-#if DEBUG_LEVEL > 0
+#ifdef DEBUG_ERROR
   OutputStream = &Serial;
   // Set Forward stream to Serial
   NMEA2000.SetForwardStream(OutputStream);
@@ -114,8 +114,8 @@ int8_t initN2K(void)
   //  NMEA2000.SetN2kCANMsgBufSize(2);
   NMEA2000.Open();
 
-#if DEBUG_LEVEL > 2
-  OutputStream->print("NMEA2000 Interface Running...");
+#ifdef DEBUG_NSK_MSG
+  OutputStream->print("NMEA2000 Interface Running...\n");
 #endif
 
   // Success
@@ -129,7 +129,7 @@ void HandleNMEA2000Msg(const tN2kMsg &N2kMsg)
   int iHandler;
 
 // Only if Debug is enabled
-#if DEBUG_LEVEL > 2
+#ifdef DEBUG_NSK_MSG
   // Find handler
   OutputStream->print("In Main Handler: ");
   OutputStream->println(N2kMsg.PGN);
@@ -157,7 +157,7 @@ void EngineRapid(const tN2kMsg &N2kMsg)
   if (ParseN2kEngineParamRapid(N2kMsg, EngineInstance, EngineSpeed, EngineBoostPressure, EngineTiltTrim))
   {
 // Only if Debug is enabled
-#if DEBUG_LEVEL > 2
+#ifdef DEBUG_NSK_MSG
     PrintLabelValWithConversionCheckUnDef("Engine rapid params: ", EngineInstance, 0, true);
     PrintLabelValWithConversionCheckUnDef("  RPM: ", EngineSpeed, 0, true);
     PrintLabelValWithConversionCheckUnDef("  boost pressure (Pa): ", EngineBoostPressure, 0, true);
@@ -200,7 +200,7 @@ void EngineDynamicParameters(const tN2kMsg &N2kMsg)
                                  EngineLoad, EngineTorque, Status1, Status2))
   {
 // Only if Debug is enabled
-#if DEBUG_LEVEL > 2
+#ifdef DEBUG_NSK_MSG
     PrintLabelValWithConversionCheckUnDef("Engine dynamic params: ", EngineInstance, 0, true);
     PrintLabelValWithConversionCheckUnDef("  oil pressure (Pa): ", EngineOilPress, 0, true);
     PrintLabelValWithConversionCheckUnDef("  oil temp (C): ", EngineOilTemp, &KelvinToC, true);
@@ -245,7 +245,7 @@ void TransmissionParameters(const tN2kMsg &N2kMsg)
   if (ParseN2kTransmissionParameters(N2kMsg, EngineInstance, TransmissionGear, OilPressure, OilTemperature, DiscreteStatus1))
   {
 // Only if Debug is enabled
-#if DEBUG_LEVEL > 2
+#ifdef DEBUG_NSK_MSG
     if (OutputStream)
     {
       PrintLabelValWithConversionCheckUnDef("Transmission params: ", EngineInstance, 0, true);
@@ -277,7 +277,7 @@ void SystemTime(const tN2kMsg &N2kMsg)
     if (SystemDate > 0 && SystemTime >= 0.0 && SystemTime < 86400.0)
     {
 // Only if Debug is enabled
-#if DEBUG_LEVEL > 2
+#ifdef DEBUG_NSK_MSG
       OutputStream->println("System time:");
       PrintLabelValWithConversionCheckUnDef("  SID: ", SID, 0, true);
       PrintLabelValWithConversionCheckUnDef("  days since 1.1.1970: ", SystemDate, 0, true);
@@ -289,7 +289,7 @@ void SystemTime(const tN2kMsg &N2kMsg)
     else
     {
 // Only if Debug is enabled
-#if DEBUG_LEVEL > 0
+#ifdef DEBUG_ERROR
       OutputStream->println("Invalid system time data received.");
 #endif
     }

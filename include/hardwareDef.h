@@ -19,23 +19,20 @@
 #include <Arduino.h>
 
 
-/*! ******************************************************************
-  \brief  Debug Level for the project
+// --------------> Debug Messages<-------------------
+/// Define if error messages should be printed true/false
+#define DEBUG_ERROR true
 
-  This defines the debug level for the project. The debug level
-  is used to define the output of debug messages. The higher the
-  level the more debug messages are printed.
+/// Define if NMEA2000 messages should be printed true/false
+#define DEBUG_NSK_MSG true
 
-  0: No debug messages
-  1: Only error messages
-  2: Error and warning messages
-  3: Error, warning and info messages
-*/
-#define DEBUG_LEVEL 3
+/// Define if display brightness should be printed true/false
+#define DEBUG_DISPLAY_BRIGHTNESS true
 
-/// Define if raw N2K messages should be printed (if DEBUG_LEVEL > 0) true/false
+/// Define if raw N2K messages should be printed true/false
 #define DEBUG_RAW_N2K_MESSAGES false  
 
+// --------> Config Engine ID <-------------------
 /// Define Engine Instance to be displayed
 #define DISPLAY_ENGINE_INSTANCE 0
 

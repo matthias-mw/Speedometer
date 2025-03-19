@@ -61,7 +61,7 @@ typedef struct
   tN2kEngineDiscreteStatus2 EngineDiscreteStatus2;
 } tDisplayData;
 
-#if DEBUG_LEVEL > 0 // Debug level is greater than 0
+#ifdef DEBUG_ERROR // Debug level is greater than 0
 
 /// Pointer to the output stream
 extern Stream *OutputStream;

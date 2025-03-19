@@ -183,8 +183,7 @@ uint8_t calcDisplayBrightness()
   }
 
   // Only if Debug is enabled
-#if DEBUG_LEVEL == 1
-
+#ifdef DEBUG_DISPLAY_BRIGHTNESS
   Serial.print(millis());
   Serial.print(": Brightness Sensor Analog Value: ");
   Serial.print(value);
