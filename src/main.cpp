@@ -1,19 +1,20 @@
 /*!
  * \file main.cpp
- * \brief Main File fot the Speedometer Project
+ * \brief Main File for the Speedometer Project
  *
- * This file contains the main loop for the Speedometer project.
+ * This file contains the main loop and task definitions for the Speedometer project.
  *
  * \author Matthias Werner
  * \date   January 2025
  * \version 0.1
- *  *
  */
 
 #include <hardwareDef.h>
 #include <Arduino.h>
 #include "displayCtl.h"
 #include <process_n2k.h>
+#include <freertos/FreeRTOS.h>
+#include <freertos/task.h>
 
 /*!
  * \brief Calculate the display brightness
@@ -34,10 +35,69 @@ uint8_t calcDisplayBrightness();
  */
 void setDisplayBrightness();
 
+/// Task handle for updating NMEA2000 messages
+TaskHandle_t taskUpdateN2KHandle = NULL;
+/// Task handle for updating the display
+TaskHandle_t taskUpdateDisplayHandle = NULL;
+/// Task handle for setting display brightness
+TaskHandle_t taskSetDisplayBrightnessHandle = NULL;
+
+/*!
+ * \brief Task for updating NMEA2000 messages
+ *
+ * This task runs on core 0 and updates NMEA2000 messages every 50ms.
+ *
+ * \param parameter Pointer to task parameters (not used).
+ */
+void taskUpdateN2K(void *parameter)
+{
+  for (;;)
+  {
+    updateN2K();
+    vTaskDelay(pdMS_TO_TICKS(50)); // Delay for 50ms
+  }
+}
+
+/*!
+ * \brief Task for updating the display
+ *
+ * This task runs on core 1 and updates the display every 100ms.
+ *
+ * \param parameter Pointer to task parameters (not used).
+ */
+void taskUpdateDisplay(void *parameter)
+{
+  for (;;)
+  {
+    updateDisplay(DisplayData.EngineSpeed, DisplayData.EngineCoolantTemperature, DisplayData.EngineHours, DisplayData.LowOilPressureWarning);
+    vTaskDelay(pdMS_TO_TICKS(100)); // Delay for 100ms
+  }
+}
+
+/*!
+ * \brief Task for setting display brightness
+ *
+ * This task runs on core 1 and adjusts the display brightness every 250ms.
+ *
+ * \param parameter Pointer to task parameters (not used).
+ */
+void taskSetDisplayBrightness(void *parameter)
+{
+  for (;;)
+  {
+    setDisplayBrightness();
+    vTaskDelay(pdMS_TO_TICKS(250)); // Delay for 250ms
+  }
+}
 
 // *****************************************************************************
 // Setup the the software
 // *****************************************************************************
+/*!
+ * \brief Setup function
+ *
+ * Initializes the hardware, display, and tasks for multitasking.
+ */
 void setup(void)
 {
 
@@ -59,23 +119,24 @@ void setup(void)
 
   // Init the NMEA2000
   initN2K();
+
+  // Create tasks for multitasking
+  xTaskCreatePinnedToCore(taskUpdateN2K, "UpdateN2K", 2048, NULL, 1, &taskUpdateN2KHandle, 0); // Core 0
+  xTaskCreatePinnedToCore(taskUpdateDisplay, "UpdateDisplay", 2048, NULL, 1, &taskUpdateDisplayHandle, 1); // Core 1
+  xTaskCreatePinnedToCore(taskSetDisplayBrightness, "SetDisplayBrightness", 2048, NULL, 1, &taskSetDisplayBrightnessHandle, 1); // Core 1
 }
 
 // *****************************************************************************
 // Main Loop
 // *****************************************************************************
+/*!
+ * \brief Main loop
+ *
+ * The main loop is empty as tasks handle the functionality.
+ */
 void loop()
 {
-  // Update the NMEA2000 messages
-  updateN2K();
-
-  // Set the display brightness
-  setDisplayBrightness();
-
-  // Show the actual values on the screen
-  updateDisplay(DisplayData.EngineSpeed, DisplayData.EngineCoolantTemperature, DisplayData.EngineHours, DisplayData.LowOilPressureWarning);
-
-  delay(100);
+  // Empty loop as tasks handle the functionality
 }
 
 // *****************************************************************************
