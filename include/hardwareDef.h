@@ -23,14 +23,16 @@
 /// Define if error messages should be printed true/false
 #define DEBUG_ERROR true
 
+/// Define if raw N2K messages should be printed true/false
+#define DEBUG_RAW_N2K_MESSAGES false  
+
 /// Define if NMEA2000 messages should be printed true/false
 #define DEBUG_NSK_MSG true
 
 /// Define if display brightness should be printed true/false
 #define DEBUG_DISPLAY_BRIGHTNESS true
 
-/// Define if raw N2K messages should be printed true/false
-#define DEBUG_RAW_N2K_MESSAGES false  
+
 
 // --------> Config Engine ID <-------------------
 /// Define Engine Instance to be displayed

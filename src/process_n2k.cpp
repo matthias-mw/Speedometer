@@ -21,7 +21,7 @@
 #endif
 
 // Only if Debug is enable
-#ifdef DEBUG_ERROR
+#if defined(DEBUG_ERROR) || defined(DEBUG_NSK_MSG)
 // Output stream for the NMEA2000 messages
 Stream *OutputStream;
 #endif
@@ -70,7 +70,7 @@ template <typename T>
 void PrintLabelValWithConversionCheckUnDef(const char *label, T val, double (*ConvFunc)(double val) = nullptr, bool AddLf = false, int8_t DecimalPlaces = -1)
 {
   // Only if Debug is enabled
-#ifdef DEBUG_ERROR
+#ifdef DEBUG_NSK_MSG
   OutputStream->print(label);
   if (!N2kIsNA(val))
   {
@@ -108,7 +108,7 @@ void PrintLabelValWithConversionCheckUnDef(const char *label, T val, double (*Co
 // Init the NMEA2000 Interface
 int8_t initN2K(void)
 {
-#ifdef DEBUG_ERROR
+#if defined(DEBUG_ERROR) || defined(DEBUG_NSK_MSG)
   OutputStream = &Serial;
   // Set Forward stream to Serial
   NMEA2000.SetForwardStream(OutputStream);
