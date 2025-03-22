@@ -29,6 +29,9 @@ Stream *OutputStream;
 // Global Structure for the display data
 tDisplayData DisplayData;
 
+// Object for the NMEA2000 messages statistics
+N2kMsgStatistics N2kMessageStatistics;
+
 // Handler for the NMEA2000 messages
 tNMEA2000Handler NMEA2000Handlers[] = {
     {126992L, &SystemTime},
@@ -173,6 +176,8 @@ void EngineRapid(const tN2kMsg &N2kMsg)
 
   if (ParseN2kEngineParamRapid(N2kMsg, EngineInstance, EngineSpeed, EngineBoostPressure, EngineTiltTrim))
   {
+    // Update N2k Statistics
+    N2kMessageStatistics.UpdateMsgCnt(N2kMsg.PGN);
 // Only if Debug is enabled
 #ifdef DEBUG_NSK_MSG
     // Tread safety with mutex SerialOutputMutex
@@ -200,6 +205,8 @@ void EngineRapid(const tN2kMsg &N2kMsg)
   }
   else
   {
+    // Update N2k Statistics
+    N2kMessageStatistics.IncreaseFailedMsgCnt(N2kMsg.PGN);
     // Only if Debug enabled
     PrintFailedToParsePGN(N2kMsg.PGN);
   }
@@ -227,6 +234,8 @@ void EngineDynamicParameters(const tN2kMsg &N2kMsg)
                                  EngineCoolantPress, EngineFuelPress,
                                  EngineLoad, EngineTorque, Status1, Status2))
   {
+    // Update N2k Statistics
+    N2kMessageStatistics.UpdateMsgCnt(N2kMsg.PGN);
 // Only if Debug is enabled
 #ifdef DEBUG_NSK_MSG
     // Tread safety with mutex SerialOutputMutex
@@ -268,6 +277,8 @@ void EngineDynamicParameters(const tN2kMsg &N2kMsg)
   }
   else
   {
+    // Update N2k Statistics
+    N2kMessageStatistics.IncreaseFailedMsgCnt(N2kMsg.PGN);
     // Only if Debug is enabled
     PrintFailedToParsePGN(N2kMsg.PGN);
   }
@@ -284,6 +295,8 @@ void TransmissionParameters(const tN2kMsg &N2kMsg)
 
   if (ParseN2kTransmissionParameters(N2kMsg, EngineInstance, TransmissionGear, OilPressure, OilTemperature, DiscreteStatus1))
   {
+    // Update N2k Statistics
+    N2kMessageStatistics.UpdateMsgCnt(N2kMsg.PGN);
 // Only if Debug is enabled
 #ifdef DEBUG_NSK_MSG
     if (OutputStream)
@@ -310,6 +323,8 @@ void TransmissionParameters(const tN2kMsg &N2kMsg)
   }
   else
   {
+    // Update N2k Statistics
+    N2kMessageStatistics.IncreaseFailedMsgCnt(N2kMsg.PGN);
     // Only if Debug is enabled
     PrintFailedToParsePGN(N2kMsg.PGN);
   }
@@ -327,6 +342,8 @@ void SystemTime(const tN2kMsg &N2kMsg)
     // Validate parsed values
     if (SystemDate > 0 && SystemTime >= 0.0 && SystemTime < 86400.0)
     {
+      // Update N2k Statistics
+      N2kMessageStatistics.UpdateMsgCnt(N2kMsg.PGN);
 // Only if Debug is enabled
 #ifdef DEBUG_NSK_MSG
       // Tread safety with mutex SerialOutputMutex
@@ -368,7 +385,243 @@ void SystemTime(const tN2kMsg &N2kMsg)
   }
   else
   {
+    // Update N2k Statistics
+    N2kMessageStatistics.IncreaseFailedMsgCnt(N2kMsg.PGN);
     // Only if Debug is enabled
     PrintFailedToParsePGN(N2kMsg.PGN);
   }
+}
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+// ----------------------> Message Statistics <-------------------------------
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+//************************************************
+// Constructor
+N2kMsgStatistics::N2kMsgStatistics()
+{
+
+  // Init the statistics
+  SystemTimeCnt = 0;
+  EngineRapidCnt = 0;
+  EngineDynamicCnt = 0;
+  TransmissionParametersCnt = 0;
+
+  SystemTimeFailedCnt = 0;
+  EngineRapidFailedCnt = 0;
+  EngineDynamicFailedCnt = 0;
+  TransmissionParametersFailedCnt = 0;
+
+  SystemTimeLastTimestamp = 0;
+  EngineRapidLastTimestamp = 0;
+  EngineDynamicLastTimestamp = 0;
+  TransmissionParametersLastTimestamp = 0;
+}
+
+//************************************************
+// Destructor
+N2kMsgStatistics::~N2kMsgStatistics()
+{
+}
+
+//************************************************
+// Update the message counter
+void N2kMsgStatistics::UpdateMsgCnt(uint32_t PGN, uint8_t Instance)
+{
+  switch (PGN)
+  {
+    // System Time Message
+  case 126992L:
+    SystemTimeCnt++;
+    SystemTimeLastTimestamp = millis();
+    break;
+
+    // Engine Rapid Message
+  case 127488L:
+    // Check for the correct instance
+    if ((Instance == DISPLAY_ENGINE_INSTANCE) || (Instance == 0))
+    {
+      EngineRapidCnt++;
+      EngineRapidLastTimestamp = millis();
+    }
+
+    break;
+
+    // Engine Dynamic Message
+  case 127489L:
+    // Check for the correct instance
+    if ((Instance == DISPLAY_ENGINE_INSTANCE) || (Instance == 0))
+    {
+      EngineDynamicCnt++;
+      EngineDynamicLastTimestamp = millis();
+    }
+    break;
+
+    // Transmission Parameters Message
+  case 127493L:
+    TransmissionParametersCnt++;
+    TransmissionParametersLastTimestamp = millis();
+    break;
+  default:
+    break;
+  }
+}
+
+//************************************************
+// Increase the failed message counter
+void N2kMsgStatistics::IncreaseFailedMsgCnt(uint32_t PGN)
+{
+  switch (PGN)
+  {
+    // System Time Message
+  case 126992L:
+    SystemTimeFailedCnt++;
+    break;
+
+    // Engine Rapid Message
+  case 127488L:
+    EngineRapidFailedCnt++;
+    break;
+
+    // Engine Dynamic Message
+  case 127489L:
+    EngineDynamicFailedCnt++;
+    break;
+
+    // Transmission Parameters Message
+  case 127493L:
+    TransmissionParametersFailedCnt++;
+    break;
+  default:
+    break;
+  }
+}
+
+//************************************************
+// Get the message counter
+uint32_t N2kMsgStatistics::GetMsgCnt(uint32_t PGN)
+{
+  switch (PGN)
+  {
+    // System Time Message
+  case 126992L:
+    return SystemTimeCnt;
+    break;
+
+    // Engine Rapid Message
+  case 127488L:
+    return EngineRapidCnt;
+    break;
+
+    // Engine Dynamic Message
+  case 127489L:
+    return EngineDynamicCnt;
+    break;
+
+    // Transmission Parameters Message
+  case 127493L:
+    return TransmissionParametersCnt;
+    break;
+  default:
+    return 0;
+    break;
+  }
+}
+
+//************************************************
+// Get the failed message counter
+uint32_t N2kMsgStatistics::GetFailedMsgCnt(uint32_t PGN)
+{
+  switch (PGN)
+  {
+    // System Time Message
+  case 126992L:
+    return SystemTimeFailedCnt;
+    break;
+
+    // Engine Rapid Message
+  case 127488L:
+    return EngineRapidFailedCnt;
+    break;
+
+    // Engine Dynamic Message
+  case 127489L:
+    return EngineDynamicFailedCnt;
+    break;
+
+    // Transmission Parameters Message
+  case 127493L:
+    return TransmissionParametersFailedCnt;
+    break;
+  default:
+    return 0;
+    break;
+  }
+}
+
+//************************************************
+// Check if the N2K message is timed out
+bool N2kMsgStatistics::N2kIsTimeOut(void)
+{
+  if ((millis() - EngineRapidLastTimestamp) > N2K_MSG_ENGINE_RAPID_TIMEOUT)
+  {
+    return true;
+  }
+  else
+  {
+    return false;
+  }
+}
+
+//************************************************
+// Show the N2K message statistics
+void N2kMsgStatistics::ShowStatistics(void)
+{
+  // Only if Debug is enabled
+#ifdef DEBUG_N2K_MSG_STATISTICS
+  // Tread safety with mutex SerialOutputMutex
+  if (SerialOutputMutex)
+  {
+    if (xSemaphoreTake(SerialOutputMutex, pdMS_TO_TICKS(20)) == pdTRUE)
+    {
+      // Show the statistics via Serial
+      Serial.println("N2K Message Statistics:");
+      Serial.print("  System Time: ");
+      Serial.print(SystemTimeCnt);
+      Serial.print(" (failed: ");
+      Serial.print(SystemTimeFailedCnt);
+      Serial.println(")");
+      Serial.print("  Engine Rapid: ");
+      Serial.print(EngineRapidCnt);
+      Serial.print(" (failed: ");
+      Serial.print(EngineRapidFailedCnt);
+      Serial.print(") Last: ");
+      Serial.print(millis() - EngineRapidLastTimestamp);
+      Serial.println("ms ago");
+      Serial.print("  Engine Dynamic: ");
+      Serial.print(EngineDynamicCnt);
+      Serial.print(" (failed: ");
+      Serial.print(EngineDynamicFailedCnt);
+      Serial.println(")");
+      Serial.print("  Transmission Parameters: ");
+      Serial.print(TransmissionParametersCnt);
+      Serial.print(" (failed: ");
+      Serial.print(TransmissionParametersFailedCnt);
+      Serial.println(")");
+      // check if Engine Rapid is timed out
+      if (N2kIsTimeOut())
+      {
+        Serial.println("  ---> Engine Rapid Message is timed out!");
+      }
+      else
+      {
+        Serial.println("  ---> Nsk Messages are coming in time");
+      }
+
+      // free the mutex
+      xSemaphoreGive(SerialOutputMutex);
+    }
+  }
+
+#endif
 }

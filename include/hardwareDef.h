@@ -32,11 +32,15 @@
 /// Define if display brightness should be printed true/false
 #define DEBUG_DISPLAY_BRIGHTNESS true
 
+/// Define if N2k Message Statistics should be printed true/false
+#define DEBUG_N2K_MSG_STATISTICS true
 
-
-// --------> Config Engine ID <-------------------
+// --------> Config N2K Message Engine ID  <--------------
 /// Define Engine Instance to be displayed
 #define DISPLAY_ENGINE_INSTANCE 0
+
+/// Define Time out [ms] for Engine Rapid Message
+#define N2K_MSG_ENGINE_RAPID_TIMEOUT 10000
 
 
 // --------> Display Brightness<---------------------

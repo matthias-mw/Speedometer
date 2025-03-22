@@ -61,7 +61,107 @@ typedef struct
   tN2kEngineDiscreteStatus2 EngineDiscreteStatus2;
 } tDisplayData;
 
-#ifdef DEBUG_ERROR // Debug level is greater than 0
+/*! ******************************************************************
+  @class  N2kMsgStatistics
+  @brief  Class for the NMEA2000 message statistics
+
+  This structure contains the statistics for the NMEA2000 messages. This
+  data will be used for error handling and debugging of the N2K messages.  
+ */
+class N2kMsgStatistics
+{
+public:
+  /// Constructor
+  N2kMsgStatistics();
+  /// Destructor
+  ~N2kMsgStatistics();
+
+
+  /*! ******************************************************************
+    @brief Update message counter for certain PGN
+
+    This function will update the message counter and timestamp
+    for the given PGN.
+
+    @param PGN PGN of the message
+   */
+  void UpdateMsgCnt(uint32_t PGN, uint8_t Instance = 0);
+
+  /*! ******************************************************************
+    @brief Increase failed message counter for certain PGN
+
+    This function will increase the failed message counter for the given PGN.
+    @param PGN PGN of the message
+   */ 
+  void IncreaseFailedMsgCnt(uint32_t PGN);
+
+  /*! ******************************************************************
+    @brief Get message counter for certain PGN
+
+    This function will return the message counter for the given PGN.
+    @param PGN PGN of the message
+    @return uint32_t Message counter
+   */
+  uint32_t GetMsgCnt(uint32_t PGN);
+
+  /*! ******************************************************************
+    @brief Get failed message counter for certain PGN
+
+    This function will return the failed message counter for the given PGN.
+    @param PGN PGN of the message
+    @return uint32_t Failed message counter
+   */
+  uint32_t GetFailedMsgCnt(uint32_t PGN);
+
+  /*! ******************************************************************
+    @brief Check if the N2K message is timed out
+
+    This function will check if the N2K message for the engine
+    instance @ref DISPLAY_ENGINE_INSTANCE is timed out. Therefore the
+    message 127488L Engine Rapid is used.
+
+    @sa N2K_MSG_ENGINE_RAPID_TIMEOUT
+    @return bool true if timed out, false if not
+   */ 
+  bool N2kIsTimeOut(void);
+  
+  /*! ******************************************************************
+    @brief Show the N2K message statistics via Serial
+    This function will show the N2K message statistics via Serial.
+    */
+  void ShowStatistics(void);
+
+private:
+  /// Number of received messages System Time
+  uint32_t SystemTimeCnt;
+  /// Number of messages failed parse System Time
+  uint32_t SystemTimeFailedCnt;
+  /// Number of received messages Engine Rapid
+  uint32_t EngineRapidCnt;
+  /// Number of messages failed parse Engine Rapid
+  uint32_t EngineRapidFailedCnt;
+  /// Number of received messages Engine Dynamic
+  uint32_t EngineDynamicCnt;
+  /// Number of messages failed parse Engine Dynamic
+  uint32_t EngineDynamicFailedCnt;
+  /// Number of received messages Transmission Parameters
+  uint32_t TransmissionParametersCnt;
+  /// Number of messages failed parse Transmission Parameters
+  uint32_t TransmissionParametersFailedCnt; 
+  /// Timestamp of the last received message System Time
+  uint32_t SystemTimeLastTimestamp;
+  /// Timestamp of the last received message Engine Rapid
+  uint32_t EngineRapidLastTimestamp;
+  /// Timestamp of the last received message Engine Dynamic
+  uint32_t EngineDynamicLastTimestamp;
+  /// Timestamp of the last received message Transmission Parameters
+  uint32_t TransmissionParametersLastTimestamp;
+
+};
+
+
+// Debug level is greater than 0
+#if defined(DEBUG_ERROR) || defined(DEBUG_NSK_MSG) 
 
 /// Pointer to the output stream
 extern Stream *OutputStream;
@@ -73,6 +173,9 @@ extern tDisplayData DisplayData;
 
 /// Mutex to protect the Serial output for tread safety
 extern SemaphoreHandle_t SerialOutputMutex;
+
+/// Object for the N2K message statistics
+extern N2kMsgStatistics N2kMessageStatistics;
 
 /*! ******************************************************************
   @brief    Init the NMEA2000 Inteface

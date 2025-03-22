@@ -41,6 +41,8 @@ TaskHandle_t taskUpdateN2KHandle = NULL;
 TaskHandle_t taskUpdateDisplayHandle = NULL;
 /// Task handle for setting display brightness
 TaskHandle_t taskSetDisplayBrightnessHandle = NULL;
+/// Task handle for showing N2kMsgStatistics
+TaskHandle_t taskShowN2kStatisticsHandle = NULL;
 
 /// Mutex for N2K Serial Output task safety
 SemaphoreHandle_t SerialOutputMutex;
@@ -93,6 +95,22 @@ void taskSetDisplayBrightness(void *parameter)
   }
 }
 
+/*!
+ * \brief Task for showing N2kMsgStatistics
+ *
+ * This task runs on core 1 with low priority and displays the N2kMsgStatistics data every 2 seconds.
+ *
+ * \param parameter Pointer to task parameters (not used).
+ */
+void taskShowN2kStatistics(void *parameter)
+{
+  for (;;)
+  {
+    N2kMessageStatistics.ShowStatistics();
+    vTaskDelay(pdMS_TO_TICKS(2000)); // Delay for 2 seconds
+  }
+}
+
 // *****************************************************************************
 // Setup the the software
 // *****************************************************************************
@@ -138,6 +156,7 @@ void setup(void)
   xTaskCreatePinnedToCore(taskUpdateN2K, "UpdateN2K", 2048, NULL, 5, &taskUpdateN2KHandle, 1);                                  // Core 1
   xTaskCreatePinnedToCore(taskUpdateDisplay, "UpdateDisplay", 2048, NULL, 2, &taskUpdateDisplayHandle, 1);                      // Core 1
   xTaskCreatePinnedToCore(taskSetDisplayBrightness, "SetDisplayBrightness", 2048, NULL, 1, &taskSetDisplayBrightnessHandle, 1); // Core 1
+  xTaskCreatePinnedToCore(taskShowN2kStatistics, "ShowN2kStatistics", 2048, NULL, 1, &taskShowN2kStatisticsHandle, 1);         // Core 1
 }
 
 // *****************************************************************************
