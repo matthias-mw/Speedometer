@@ -49,8 +49,17 @@ void updateN2K(void)
 void PrintFailedToParsePGN(uint32_t PGN)
 {
 #ifdef DEBUG_ERROR
-  OutputStream->print("Failed to parse PGN: ");
-  OutputStream->println(PGN);
+  // Tread safety with mutex SerialOutputMutex
+  if (SerialOutputMutex)
+  {
+    if (xSemaphoreTake(SerialOutputMutex, pdMS_TO_TICKS(20)) == pdTRUE)
+    {
+      OutputStream->print("Failed to parse PGN: ");
+      OutputStream->println(PGN);
+      // free the mutex
+      xSemaphoreGive(SerialOutputMutex);
+    }
+  }
 #endif
 }
 
@@ -130,9 +139,17 @@ void HandleNMEA2000Msg(const tN2kMsg &N2kMsg)
 
 // Only if Debug is enabled
 #ifdef DEBUG_NSK_MSG
-  // Find handler
-  OutputStream->print("In Main Handler: ");
-  OutputStream->println(N2kMsg.PGN);
+  // Tread safety with mutex SerialOutputMutex
+  if (SerialOutputMutex)
+  {
+    if (xSemaphoreTake(SerialOutputMutex, pdMS_TO_TICKS(20)) == pdTRUE)
+    {
+      OutputStream->print(millis());
+      OutputStream->print(": In Main Handler: ");
+      OutputStream->println(N2kMsg.PGN);
+      xSemaphoreGive(SerialOutputMutex);
+    }
+  }
 #endif
 
   // Find handler in the list till PGN is 0 (end of list) or PGN is found
@@ -158,10 +175,21 @@ void EngineRapid(const tN2kMsg &N2kMsg)
   {
 // Only if Debug is enabled
 #ifdef DEBUG_NSK_MSG
-    PrintLabelValWithConversionCheckUnDef("Engine rapid params: ", EngineInstance, 0, true);
-    PrintLabelValWithConversionCheckUnDef("  RPM: ", EngineSpeed, 0, true);
-    PrintLabelValWithConversionCheckUnDef("  boost pressure (Pa): ", EngineBoostPressure, 0, true);
-    PrintLabelValWithConversionCheckUnDef("  tilt trim: ", EngineTiltTrim, 0, true);
+    // Tread safety with mutex SerialOutputMutex
+    if (SerialOutputMutex)
+    {
+      if (xSemaphoreTake(SerialOutputMutex, pdMS_TO_TICKS(20)) == pdTRUE)
+      {
+        OutputStream->print(millis());
+        OutputStream->print(": ");
+        PrintLabelValWithConversionCheckUnDef("Engine rapid params: ", EngineInstance, 0, true);
+        PrintLabelValWithConversionCheckUnDef("  RPM: ", EngineSpeed, 0, true);
+        PrintLabelValWithConversionCheckUnDef("  boost pressure (Pa): ", EngineBoostPressure, 0, true);
+        PrintLabelValWithConversionCheckUnDef("  tilt trim: ", EngineTiltTrim, 0, true);
+        // free the mutex
+        xSemaphoreGive(SerialOutputMutex);
+      }
+    }
 #endif
     // Update the display data if the engine instance is the one to be displayed
     if (EngineInstance == DISPLAY_ENGINE_INSTANCE)
@@ -201,17 +229,29 @@ void EngineDynamicParameters(const tN2kMsg &N2kMsg)
   {
 // Only if Debug is enabled
 #ifdef DEBUG_NSK_MSG
-    PrintLabelValWithConversionCheckUnDef("Engine dynamic params: ", EngineInstance, 0, true);
-    PrintLabelValWithConversionCheckUnDef("  oil pressure (Pa): ", EngineOilPress, 0, true);
-    PrintLabelValWithConversionCheckUnDef("  oil temp (C): ", EngineOilTemp, &KelvinToC, true);
-    PrintLabelValWithConversionCheckUnDef("  coolant temp (C): ", EngineCoolantTemp, &KelvinToC, true);
-    PrintLabelValWithConversionCheckUnDef("  altenator voltage (V): ", AlternatorVoltage, 0, true);
-    PrintLabelValWithConversionCheckUnDef("  fuel rate (l/h): ", FuelRate, 0, true);
-    PrintLabelValWithConversionCheckUnDef("  engine hours (h): ", EngineHours, &SecondsToh, true);
-    PrintLabelValWithConversionCheckUnDef("  coolant pressure (Pa): ", EngineCoolantPress, 0, true);
-    PrintLabelValWithConversionCheckUnDef("  fuel pressure (Pa): ", EngineFuelPress, 0, true);
-    PrintLabelValWithConversionCheckUnDef("  engine load (%): ", EngineLoad, 0, true);
-    PrintLabelValWithConversionCheckUnDef("  engine torque (%): ", EngineTorque, 0, true);
+    // Tread safety with mutex SerialOutputMutex
+    if (SerialOutputMutex)
+    {
+      if (xSemaphoreTake(SerialOutputMutex, pdMS_TO_TICKS(20)) == pdTRUE)
+      {
+        OutputStream->print(millis());
+        OutputStream->print(": ");
+        PrintLabelValWithConversionCheckUnDef("Engine dynamic params: ", EngineInstance, 0, true);
+        PrintLabelValWithConversionCheckUnDef("  oil pressure (Pa): ", EngineOilPress, 0, true);
+        PrintLabelValWithConversionCheckUnDef("  oil temp (C): ", EngineOilTemp, &KelvinToC, true);
+        PrintLabelValWithConversionCheckUnDef("  coolant temp (C): ", EngineCoolantTemp, &KelvinToC, true);
+        PrintLabelValWithConversionCheckUnDef("  altenator voltage (V): ", AlternatorVoltage, 0, true);
+        PrintLabelValWithConversionCheckUnDef("  fuel rate (l/h): ", FuelRate, 0, true);
+        PrintLabelValWithConversionCheckUnDef("  engine hours (h): ", EngineHours, &SecondsToh, true);
+        PrintLabelValWithConversionCheckUnDef("  coolant pressure (Pa): ", EngineCoolantPress, 0, true);
+        PrintLabelValWithConversionCheckUnDef("  fuel pressure (Pa): ", EngineFuelPress, 0, true);
+        PrintLabelValWithConversionCheckUnDef("  engine load (%): ", EngineLoad, 0, true);
+        PrintLabelValWithConversionCheckUnDef("  engine torque (%): ", EngineTorque, 0, true);
+
+        // free the mutex
+        xSemaphoreGive(SerialOutputMutex);
+      }
+    }
 #endif
 
     // Update the display data if the engine instance is the one to be displayed
@@ -248,12 +288,23 @@ void TransmissionParameters(const tN2kMsg &N2kMsg)
 #ifdef DEBUG_NSK_MSG
     if (OutputStream)
     {
-      PrintLabelValWithConversionCheckUnDef("Transmission params: ", EngineInstance, 0, true);
-      OutputStream->print("  gear: ");
-      PrintN2kEnumType(TransmissionGear, OutputStream);
-      PrintLabelValWithConversionCheckUnDef("  oil pressure (Pa): ", OilPressure, 0, true);
-      PrintLabelValWithConversionCheckUnDef("  oil temperature (C): ", OilTemperature, &KelvinToC, true);
-      PrintLabelValWithConversionCheckUnDef("  discrete status: ", DiscreteStatus1, 0, true);
+      // Tread safety with mutex SerialOutputMutex
+      if (SerialOutputMutex)
+      {
+        if (xSemaphoreTake(SerialOutputMutex, pdMS_TO_TICKS(20)) == pdTRUE)
+        {
+          OutputStream->print(millis());
+          OutputStream->print(": ");
+          PrintLabelValWithConversionCheckUnDef("Transmission params: ", EngineInstance, 0, true);
+          OutputStream->print("  gear: ");
+          PrintN2kEnumType(TransmissionGear, OutputStream);
+          PrintLabelValWithConversionCheckUnDef("  oil pressure (Pa): ", OilPressure, 0, true);
+          PrintLabelValWithConversionCheckUnDef("  oil temperature (C): ", OilTemperature, &KelvinToC, true);
+          PrintLabelValWithConversionCheckUnDef("  discrete status: ", DiscreteStatus1, 0, true);
+          // free the mutex
+          xSemaphoreGive(SerialOutputMutex);
+        }
+      }
     }
 #endif
   }
@@ -278,19 +329,40 @@ void SystemTime(const tN2kMsg &N2kMsg)
     {
 // Only if Debug is enabled
 #ifdef DEBUG_NSK_MSG
-      OutputStream->println("System time:");
-      PrintLabelValWithConversionCheckUnDef("  SID: ", SID, 0, true);
-      PrintLabelValWithConversionCheckUnDef("  days since 1.1.1970: ", SystemDate, 0, true);
-      PrintLabelValWithConversionCheckUnDef("  seconds since midnight: ", SystemTime, 0, true);
-      OutputStream->print("  time source: ");
-      PrintN2kEnumType(TimeSource, OutputStream);
+      // Tread safety with mutex SerialOutputMutex
+      if (SerialOutputMutex)
+      {
+        if (xSemaphoreTake(SerialOutputMutex, pdMS_TO_TICKS(20)) == pdTRUE)
+        {
+          OutputStream->print(millis());
+          OutputStream->print(": ");
+          OutputStream->println("System time:");
+          PrintLabelValWithConversionCheckUnDef("  SID: ", SID, 0, true);
+          PrintLabelValWithConversionCheckUnDef("  days since 1.1.1970: ", SystemDate, 0, true);
+          PrintLabelValWithConversionCheckUnDef("  seconds since midnight: ", SystemTime, 0, true);
+          OutputStream->print("  time source: ");
+          PrintN2kEnumType(TimeSource, OutputStream);
+          // free the mutex
+          xSemaphoreGive(SerialOutputMutex);
+        }
+      }
+
 #endif
     }
     else
     {
 // Only if Debug is enabled
 #ifdef DEBUG_ERROR
-      OutputStream->println("Invalid system time data received.");
+      // Tread safety with mutex SerialOutputMutex
+      if (SerialOutputMutex)
+      {
+        if (xSemaphoreTake(SerialOutputMutex, pdMS_TO_TICKS(20)) == pdTRUE)
+        {
+          OutputStream->println("Invalid system time data received.");
+          // free the mutex
+          xSemaphoreGive(SerialOutputMutex);
+        }
+      }
 #endif
     }
   }

@@ -71,6 +71,8 @@ extern Stream *OutputStream;
 /// Global Structure for the display data
 extern tDisplayData DisplayData;
 
+/// Mutex to protect the Serial output for tread safety
+extern SemaphoreHandle_t SerialOutputMutex;
 
 /*! ******************************************************************
   @brief    Init the NMEA2000 Inteface

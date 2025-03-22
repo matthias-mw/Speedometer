@@ -42,10 +42,13 @@ TaskHandle_t taskUpdateDisplayHandle = NULL;
 /// Task handle for setting display brightness
 TaskHandle_t taskSetDisplayBrightnessHandle = NULL;
 
+/// Mutex for N2K Serial Output task safety
+SemaphoreHandle_t SerialOutputMutex;
+
 /*!
  * \brief Task for updating NMEA2000 messages
  *
- * This task runs on core 0 and updates NMEA2000 messages every 50ms.
+ * This task runs on core 1 and updates NMEA2000 messages every 50ms.
  *
  * \param parameter Pointer to task parameters (not used).
  */
@@ -120,9 +123,20 @@ void setup(void)
   // Init the NMEA2000
   initN2K();
 
+  // Create the Mutex for N2K Serial Output
+  SerialOutputMutex = xSemaphoreCreateMutex();
+  // Check if the Mutex was created
+  if (SerialOutputMutex == NULL)
+  {
+    // Only if Debug is enabled
+#ifdef DEBUG_ERROR
+    Serial.println("Failed to create N2K Serial Mutex");
+#endif
+  }
+
   // Create tasks for multitasking
-  xTaskCreatePinnedToCore(taskUpdateN2K, "UpdateN2K", 2048, NULL, 1, &taskUpdateN2KHandle, 0); // Core 0
-  xTaskCreatePinnedToCore(taskUpdateDisplay, "UpdateDisplay", 2048, NULL, 1, &taskUpdateDisplayHandle, 1); // Core 1
+  xTaskCreatePinnedToCore(taskUpdateN2K, "UpdateN2K", 2048, NULL, 5, &taskUpdateN2KHandle, 1);                                  // Core 1
+  xTaskCreatePinnedToCore(taskUpdateDisplay, "UpdateDisplay", 2048, NULL, 2, &taskUpdateDisplayHandle, 1);                      // Core 1
   xTaskCreatePinnedToCore(taskSetDisplayBrightness, "SetDisplayBrightness", 2048, NULL, 1, &taskSetDisplayBrightnessHandle, 1); // Core 1
 }
 
@@ -184,11 +198,21 @@ uint8_t calcDisplayBrightness()
 
   // Only if Debug is enabled
 #ifdef DEBUG_DISPLAY_BRIGHTNESS
-  Serial.print(millis());
-  Serial.print(": Brightness Sensor Analog Value: ");
-  Serial.print(value);
-  Serial.print(" -- > Brightness: ");
-  Serial.println(brightness);
+  // Tread safety with mutex SerialOutputMutex
+  if (SerialOutputMutex)
+  {
+    if (xSemaphoreTake(SerialOutputMutex, pdMS_TO_TICKS(20)) == pdTRUE)
+    {
+      Serial.print(millis());
+      Serial.print(": Brightness Sensor Analog Value: ");
+      Serial.print(value);
+      Serial.print(" -- > Brightness: ");
+      Serial.println(brightness);
+
+      // free the mutex
+      xSemaphoreGive(SerialOutputMutex);
+    }
+  }
 #endif
 
   // return the brightness value
